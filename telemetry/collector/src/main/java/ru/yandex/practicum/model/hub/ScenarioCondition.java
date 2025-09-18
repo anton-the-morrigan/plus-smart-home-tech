@@ -18,5 +18,5 @@ public class ScenarioCondition {
 
     ConditionOperation conditionOperation;
 
-    Boolean value;
+    Integer value;
 }
