@@ -45,15 +45,11 @@ public class HubEventMapper {
 
             case SCENARIO_ADDED -> {
                 ScenarioAddedEvent event = (ScenarioAddedEvent) hubEvent;
-                return ScenarioAddedEventAvro.newBuilder()
-                        .setName(event.getName())
-                        .setConditions(event.getConditions().stream()
-                                .map(this::toConditionAvro)
-                                .toList())
-                        .setActions(event.getActions().stream()
-                                .map(this::toActionAvro)
-                                .toList())
-                        .build();
+                return new ScenarioAddedEventAvro(
+                        event.getName(),
+                        event.getConditions().stream().map(HubEventMapper::toScenarioConditionAvro).toList(),
+                        event.getActions().stream().map(HubEventMapper::toDeviceActionAvro).toList()
+                );
             }
 
             case SCENARIO_REMOVED -> {
@@ -67,42 +63,36 @@ public class HubEventMapper {
         }
     }
 
-    private static DeviceTypeAvro toDeviceTypeAvro(DeviceType deviceType) {
+    public static DeviceTypeAvro toDeviceTypeAvro(DeviceType deviceType) {
         return DeviceTypeAvro.valueOf(deviceType.name());
     }
 
-    private ScenarioConditionAvro toConditionAvro(ScenarioCondition scenarioCondition) {
-        ConditionTypeAvro conditionTypeAvro = switch (scenarioCondition.getConditionType()) {
-            case MOTION -> ConditionTypeAvro.MOTION;
-            case LUMINOSITY -> ConditionTypeAvro.LUMINOSITY;
-            case SWITCH -> ConditionTypeAvro.SWITCH;
-            case TEMPERATURE -> ConditionTypeAvro.TEMPERATURE;
-            case CO2LEVEL -> ConditionTypeAvro.CO2LEVEL;
-            case HUMIDITY -> ConditionTypeAvro.HUMIDITY;
-        };
-        ConditionOperationAvro conditionOperationAvro = switch (scenarioCondition.getConditionOperation()) {
-            case EQUALS -> ConditionOperationAvro.EQUALS;
-            case LOWER_THAN -> ConditionOperationAvro.LOWER_THAN;
-            case GREATER_THAN -> ConditionOperationAvro.GREATER_THAN;
-        };
-        return ScenarioConditionAvro.newBuilder()
-                .setSensorId(scenarioCondition.getSensorId())
-                .setType(conditionTypeAvro)
-                .setOperation(conditionOperationAvro)
-                .build();
+    public static ConditionTypeAvro toConditionTypeAvro(ConditionType conditionType) {
+        return ConditionTypeAvro.valueOf(conditionType.name());
     }
 
-    private DeviceActionAvro toActionAvro(DeviceAction deviceAction) {
-        ActionTypeAvro actionTypeAvro = switch (deviceAction.getType()) {
-            case INVERSE -> ActionTypeAvro.INVERSE;
-            case ACTIVATE -> ActionTypeAvro.ACTIVATE;
-            case DEACTIVATE -> ActionTypeAvro.DEACTIVATE;
-            case SET_VALUE -> ActionTypeAvro.SET_VALUE;
-        };
-        return DeviceActionAvro.newBuilder()
-                .setSensorId(deviceAction.getSensorId())
-                .setType(actionTypeAvro)
-                .setValue(deviceAction.getValue())
-                .build();
+    public static ConditionOperationAvro toConditionOperationAvro(ConditionOperation conditionOperation) {
+        return ConditionOperationAvro.valueOf(conditionOperation.name());
+    }
+
+    public static ActionTypeAvro toActionTypeAvro(ActionType actionType) {
+        return ActionTypeAvro.valueOf(actionType.name());
+    }
+
+    public static ScenarioConditionAvro toScenarioConditionAvro(ScenarioCondition scenarioCondition) {
+        return new ScenarioConditionAvro(
+                scenarioCondition.getSensorId(),
+                toConditionTypeAvro(scenarioCondition.getConditionType()),
+                toConditionOperationAvro(scenarioCondition.getConditionOperation()),
+                scenarioCondition.getValue()
+        );
+    }
+
+    public static DeviceActionAvro toDeviceActionAvro(DeviceAction deviceAction) {
+        return new DeviceActionAvro(
+                deviceAction.getSensorId(),
+                toActionTypeAvro(deviceAction.getType()),
+                deviceAction.getValue()
+        );
     }
 }
