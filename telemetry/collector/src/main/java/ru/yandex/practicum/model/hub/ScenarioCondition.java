@@ -14,9 +14,9 @@ public class ScenarioCondition {
 
     String sensorId;
 
-    ConditionType conditionType;
+    ConditionType type;
 
-    ConditionOperation conditionOperation;
+    ConditionOperation operation;
 
     Object value;
 }

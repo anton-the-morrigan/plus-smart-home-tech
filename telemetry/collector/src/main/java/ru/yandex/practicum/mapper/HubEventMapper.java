@@ -82,8 +82,8 @@ public class HubEventMapper {
     public static ScenarioConditionAvro toScenarioConditionAvro(ScenarioCondition scenarioCondition) {
         return new ScenarioConditionAvro(
                 scenarioCondition.getSensorId(),
-                toConditionTypeAvro(scenarioCondition.getConditionType()),
-                toConditionOperationAvro(scenarioCondition.getConditionOperation()),
+                toConditionTypeAvro(scenarioCondition.getType()),
+                toConditionOperationAvro(scenarioCondition.getOperation()),
                 scenarioCondition.getValue()
         );
     }
