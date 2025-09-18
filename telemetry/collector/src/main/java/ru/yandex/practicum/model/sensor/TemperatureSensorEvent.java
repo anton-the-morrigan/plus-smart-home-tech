@@ -1,5 +1,6 @@
 package ru.yandex.practicum.model.sensor;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -15,10 +16,10 @@ import java.time.Instant;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class TemperatureSensorEvent extends SensorEvent {
 
-    @NotNull
+    @NotBlank
     String id;
 
-    @NotNull
+    @NotBlank
     String hubId;
 
     Instant timestamp = Instant.now();
