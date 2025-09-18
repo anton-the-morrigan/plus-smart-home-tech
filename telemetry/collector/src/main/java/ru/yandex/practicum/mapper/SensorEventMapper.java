@@ -13,7 +13,7 @@ import ru.yandex.practicum.kafka.telemetry.event.TemperatureSensorAvro;
 @Component
 public class SensorEventMapper {
 
-    public static SensorEventAvro toSensorEventAvro(SensorEvent sensorEvent) {
+    public SensorEventAvro toSensorEventAvro(SensorEvent sensorEvent) {
         return new SensorEventAvro(
                 sensorEvent.getId(),
                 sensorEvent.getHubId(),
@@ -22,7 +22,7 @@ public class SensorEventMapper {
         );
     }
 
-    public static SpecificRecordBase toSensorEventPayloadAvro(SensorEvent sensorEvent) {
+    public SpecificRecordBase toSensorEventPayloadAvro(SensorEvent sensorEvent) {
         switch (sensorEvent.getType()) {
             case CLIMATE_SENSOR_EVENT -> {
                 ClimateSensorEvent event = (ClimateSensorEvent) sensorEvent;
