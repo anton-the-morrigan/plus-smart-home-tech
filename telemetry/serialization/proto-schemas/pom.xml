@@ -44,7 +44,7 @@
                 <artifactId>protobuf-maven-plugin</artifactId>
 
                 <configuration>
-                    <protocVersion>3.23.4</protocVersion>
+                    <protocVersion>${protobuf.version}</protocVersion>
 
                     <binaryMavenPlugins>
                         <binaryMavenPlugin>

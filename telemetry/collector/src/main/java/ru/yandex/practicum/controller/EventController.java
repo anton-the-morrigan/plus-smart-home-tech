@@ -19,9 +19,9 @@ import java.util.stream.Collectors;
 
 @GrpcService
 public class EventController extends CollectorControllerGrpc.CollectorControllerImplBase {
-    private final EventService eventService;
     private final Map<SensorEventProto.PayloadCase, SensorEventMapper> sensorEventMappers;
     private final Map<HubEventProto.PayloadCase, HubEventMapper> hubEventMappers;
+    private final EventService eventService;
 
     public EventController(Set<SensorEventMapper> sensorEventMappers,
                            Set<HubEventMapper> hubEventMappers,
