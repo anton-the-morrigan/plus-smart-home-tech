@@ -39,6 +39,7 @@ public class EventController extends CollectorControllerGrpc.CollectorController
         this.eventService = eventService;
     }
 
+    @Override
     public void collectSensorEvent(SensorEventProto request, StreamObserver<Empty> responseObserver) {
         try {
             if (sensorEventMappers.containsKey(request.getPayloadCase())) {
@@ -57,6 +58,7 @@ public class EventController extends CollectorControllerGrpc.CollectorController
         }
     }
 
+    @Override
     public void collectHubEvent(HubEventProto request, StreamObserver<Empty> responseObserver) {
         try {
             if (hubEventMappers.containsKey(request.getPayloadCase())) {

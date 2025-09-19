@@ -30,7 +30,7 @@ public class EventServiceImpl implements EventService {
         String topic = "telemetry.sensors.v1";
         initProducer();
         SensorEventAvro message = sensorEventMapper.toSensorEventAvro(event);
-        String hubId = message.getHubId().toString();
+        String hubId = message.getHubId();
         Long timestamp = message.getTimestamp().toEpochMilli();
         ProducerRecord<String, SpecificRecordBase> record = new ProducerRecord<>(topic, null, timestamp, hubId, message);
         producer.send(record);
@@ -40,7 +40,7 @@ public class EventServiceImpl implements EventService {
         String topic = "telemetry.hubs.v1";
         initProducer();
         HubEventAvro message = hubEventMapper.toHubEventAvro(event);
-        String hubId = message.getHubId().toString();
+        String hubId = message.getHubId();
         Long timestamp = message.getTimestamp().toEpochMilli();
         ProducerRecord<String, SpecificRecordBase> record = new ProducerRecord<>(topic, null, timestamp, hubId, message);
         producer.send(record);
