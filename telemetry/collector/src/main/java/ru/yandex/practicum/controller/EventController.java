@@ -4,7 +4,6 @@ import com.google.protobuf.Empty;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
-import lombok.RequiredArgsConstructor;
 import net.devh.boot.grpc.server.service.GrpcService;
 import ru.yandex.practicum.grpc.telemetry.event.HubEventProto;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
@@ -18,7 +17,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @GrpcService
-public class EventController {
+public class EventController extends CollectorControllerGrpc.CollectorControllerImplBase {
     private final EventService eventService;
     private final Map<SensorEventProto.PayloadCase, SensorEventMapper> sensorEventMappers;
     private final Map<HubEventProto.PayloadCase, HubEventMapper> hubEventMappers;
