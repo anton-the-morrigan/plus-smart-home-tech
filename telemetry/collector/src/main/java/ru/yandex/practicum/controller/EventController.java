@@ -18,7 +18,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @GrpcService
-@RequiredArgsConstructor
 public class EventController {
     private final EventService eventService;
     private final Map<SensorEventProto.PayloadCase, SensorEventMapper> sensorEventMappers;
