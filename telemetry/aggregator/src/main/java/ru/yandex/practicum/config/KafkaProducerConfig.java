@@ -1,5 +1,6 @@
 package ru.yandex.practicum.config;
 
+import lombok.RequiredArgsConstructor;
 import org.apache.avro.specific.SpecificRecordBase;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -13,13 +14,14 @@ import ru.yandex.practicum.GeneralAvroSerializer;
 import java.util.Properties;
 
 @Configuration
-public class KafkaConfig {
+@RequiredArgsConstructor
+public class KafkaProducerConfig {
 
     @Value("${kafka.bootstrap.servers}")
     private String bootstrapServers;
 
     @Bean
-    Producer<String, SpecificRecordBase> kafkaProducer() {
+    public Producer<String, SpecificRecordBase> getProducer() {
         Properties config = new Properties();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -27,4 +29,5 @@ public class KafkaConfig {
 
         return new KafkaProducer<>(config);
     }
+
 }
