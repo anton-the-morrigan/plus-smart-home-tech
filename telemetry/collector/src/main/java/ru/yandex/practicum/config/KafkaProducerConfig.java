@@ -13,13 +13,13 @@ import ru.yandex.practicum.GeneralAvroSerializer;
 import java.util.Properties;
 
 @Configuration
-public class KafkaConfig {
+public class KafkaProducerConfig {
 
     @Value("${kafka.bootstrap.servers}")
     private String bootstrapServers;
 
     @Bean
-    Producer<String, SpecificRecordBase> kafkaProducer() {
+    Producer<String, SpecificRecordBase> getProducer() {
         Properties config = new Properties();
         config.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
