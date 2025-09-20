@@ -5,7 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.SuperBuilder;
 
+@SuperBuilder(toBuilder = true)
 @Getter
 @Setter
 @ToString
@@ -18,5 +20,5 @@ public class ScenarioCondition {
 
     ConditionOperation operation;
 
-    Object value;
+    Integer value;
 }
