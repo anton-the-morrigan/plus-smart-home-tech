@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Properties;
 
 @Service
-public class SnapshotProcessor {
+public class SnapshotProcessor implements Runnable  {
     private final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(1000);
     private final String TELEMETRY_SNAPSHOT_TOPIC = "telemetry.snapshots.v1";
 
@@ -36,7 +36,8 @@ public class SnapshotProcessor {
         this.snapshotHandler = snapshotHandler;
     }
 
-    public void start() {
+    @Override
+    public void run() {
         try {
             Runtime.getRuntime().addShutdownHook(new Thread(snapshotConsumer::wakeup));
             snapshotConsumer.subscribe(List.of(TELEMETRY_SNAPSHOT_TOPIC));
