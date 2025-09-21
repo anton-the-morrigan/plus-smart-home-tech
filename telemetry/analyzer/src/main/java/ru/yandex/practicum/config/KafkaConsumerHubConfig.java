@@ -22,8 +22,6 @@ public class KafkaConsumerHubConfig {
     @Bean
     public KafkaConsumer<String, HubEventAvro> getHubConsumer() {
         Properties config = new Properties();
-        config.put(ConsumerConfig.CLIENT_ID_CONFIG, "hub-event-consumer");
-        config.put(ConsumerConfig.GROUP_ID_CONFIG, "hub-analyzer-group");
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, HubEventDeserializer.class);
