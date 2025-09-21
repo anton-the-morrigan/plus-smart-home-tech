@@ -17,7 +17,7 @@ public class ClimateSensorEventHandler implements SensorEventHandler{
 
     @Override
     public Integer getSensorValue(ConditionType type, SensorStateAvro sensorStateAvro) {
-        log.debug("ClimateSensorEventHandler getSensorValue");
+        log.info("ClimateSensorEventHandler getSensorValue");
         ClimateSensorAvro climateSensorAvro = (ClimateSensorAvro) sensorStateAvro.getData();
         return switch (type) {
             case ConditionType.TEMPERATURE -> climateSensorAvro.getTemperatureC();

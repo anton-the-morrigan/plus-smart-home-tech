@@ -38,7 +38,7 @@ public class ScenarioAddedHandler implements HubEventHandler {
 
     @Override
     public void handle(HubEventAvro hubEventAvro) {
-        log.debug("ScenarioAddedHandler handle");
+        log.info("ScenarioAddedHandler handle");
         ScenarioAddedEventAvro scenarioAddedEventAvro = (ScenarioAddedEventAvro) hubEventAvro.getPayload();
 
         if (!checkSensors(getConditionsSensorIds(scenarioAddedEventAvro.getConditions()), hubEventAvro.getHubId())) {

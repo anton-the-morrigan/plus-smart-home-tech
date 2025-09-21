@@ -27,7 +27,7 @@ public class SnapshotProcessor implements Runnable {
     }
 
     public void run() {
-        log.debug("SnapshotProcessor run");
+        log.info("SnapshotProcessor run");
         try {
             snapshotConsumer.subscribe(List.of(TELEMETRY_SNAPSHOT_TOPIC));
             Runtime.getRuntime().addShutdownHook(new Thread(snapshotConsumer::wakeup));

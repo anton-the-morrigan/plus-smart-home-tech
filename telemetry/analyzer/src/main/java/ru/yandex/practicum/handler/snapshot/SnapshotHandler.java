@@ -36,7 +36,7 @@ public class SnapshotHandler {
     }
 
     public void handleSnapshot(SensorsSnapshotAvro sensorsSnapshotAvro) {
-        log.debug("SnapshotHandler handleSnapshot");
+        log.info("SnapshotHandler handleSnapshot");
         List<Scenario> scenarios = getScenariosBySnapshots(sensorsSnapshotAvro);
         for (Scenario scenario : scenarios) {
             ActionProducer.sendAction(scenario);

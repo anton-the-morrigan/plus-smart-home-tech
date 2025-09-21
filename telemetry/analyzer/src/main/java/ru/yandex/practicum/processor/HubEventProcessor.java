@@ -32,7 +32,7 @@ public class HubEventProcessor implements Runnable {
 
     @Override
     public void run() {
-        log.debug("HubEventProcessor run");
+        log.info("HubEventProcessor run");
         try {
             hubConsumer.subscribe(List.of(TELEMETRY_HUBS_TOPIC));
             Runtime.getRuntime().addShutdownHook(new Thread(hubConsumer::wakeup));

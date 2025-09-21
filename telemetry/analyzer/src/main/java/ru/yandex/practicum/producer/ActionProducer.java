@@ -21,31 +21,36 @@ public class ActionProducer {
     private HubRouterControllerGrpc.HubRouterControllerBlockingStub hubRouterClient;
 
     public void sendAction(Scenario scenario) {
-        log.debug("ActionProducer sendAction");
-        String hubId = scenario.getHubId();
-        String scenarioName = scenario.getName();
-        for (Action action : scenario.getActions()) {
-            DeviceActionProto deviceActionProto = DeviceActionProto.newBuilder()
-                    .setSensorId(action.getSensor().getId())
-                    .setType(toActionType(action.getType()))
-                    .setValue(action.getValue())
-                    .build();
+        try {
+            log.debug("ActionProducer sendAction");
+            String hubId = scenario.getHubId();
+            String scenarioName = scenario.getName();
+            for (Action action : scenario.getActions()) {
+                DeviceActionProto deviceActionProto = DeviceActionProto.newBuilder()
+                        .setSensorId(action.getSensor().getId())
+                        .setType(toActionType(action.getType()))
+                        .setValue(action.getValue())
+                        .build();
 
-            Instant instant = Instant.now();
+                Instant instant = Instant.now();
 
-            Timestamp timestamp = Timestamp.newBuilder()
-                    .setSeconds(instant.getEpochSecond())
-                    .setNanos(instant.getNano())
-                    .build();
+                Timestamp timestamp = Timestamp.newBuilder()
+                        .setSeconds(instant.getEpochSecond())
+                        .setNanos(instant.getNano())
+                        .build();
 
-            DeviceActionRequestProto request = DeviceActionRequestProto.newBuilder()
-                    .setHubId(hubId)
-                    .setScenarioName(scenarioName)
-                    .setAction(deviceActionProto)
-                    .setTimestamp(timestamp)
-                    .build();
+                DeviceActionRequestProto request = DeviceActionRequestProto.newBuilder()
+                        .setHubId(hubId)
+                        .setScenarioName(scenarioName)
+                        .setAction(deviceActionProto)
+                        .setTimestamp(timestamp)
+                        .build();
 
-            hubRouterClient.handleDeviceAction(request);
+                hubRouterClient.handleDeviceAction(request);
+            }
+        } catch (Exception e) {
+            log.error("Ошибка при отправке действия: {}", e.getMessage(), e);
+            throw e;
         }
     }
 

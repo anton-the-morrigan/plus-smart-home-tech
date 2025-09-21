@@ -21,7 +21,7 @@ public class DeviceAddedEventHandler implements HubEventHandler {
 
     @Override
     public void handle(HubEventAvro hubEventAvro) {
-        log.debug("DeviceAddedEventHandler handle");
+        log.info("DeviceAddedEventHandler handle");
         sensorRepository.save(toSensor(hubEventAvro));
     }
 
