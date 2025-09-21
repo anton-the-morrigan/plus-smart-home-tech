@@ -28,10 +28,6 @@ public class HubEventProcessor implements Runnable {
 
     KafkaConsumer<String, HubEventAvro> hubConsumer = new KafkaConsumer<>(getConsumerProperties());
 
-    @Value("${kafka.bootstrap.servers}")
-    private String bootstrapServers;
-
-
     @Override
     public void run() {
         try {
@@ -64,7 +60,7 @@ public class HubEventProcessor implements Runnable {
     private Properties getConsumerProperties() {
         Properties config = new Properties();
         config.put(ConsumerConfig.GROUP_ID_CONFIG, "analyzer-consumer");
-        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, HubEventDeserializer.class);
         return config;
