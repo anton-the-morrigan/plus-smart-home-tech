@@ -1,54 +1,68 @@
 package ru.yandex.practicum.processor;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.OffsetAndMetadata;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
-import org.springframework.stereotype.Component;
-import ru.yandex.practicum.handler.snapshot.SnapshotHandler;
+import org.springframework.stereotype.Service;
+import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequestProto;
+import ru.yandex.practicum.grpc.telemetry.hubrouter.HubRouterControllerGrpc;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
+import ru.yandex.practicum.handler.SnapshotHandler;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-@Slf4j
-@Component
-@RequiredArgsConstructor
-public class SnapshotProcessor {
+@Service
+public class SnapshotProcessor implements Runnable {
     private final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(1000);
     private final String TELEMETRY_SNAPSHOT_TOPIC = "telemetry.snapshots.v1";
 
+    private final HubRouterControllerGrpc.HubRouterControllerBlockingStub hubRouterClient;
     private final Consumer<String, SensorsSnapshotAvro> snapshotConsumer;
     private final SnapshotHandler snapshotHandler;
+    private final Map<TopicPartition, OffsetAndMetadata> currentOffset = new HashMap<>();
 
-    public void start() {
-        log.info("SnapshotProcessor run");
+
+    public SnapshotProcessor(@GrpcClient("hub-router")
+                             HubRouterControllerGrpc.HubRouterControllerBlockingStub hubRouterClient,
+                             Consumer<String, SensorsSnapshotAvro> snapshotConsumer,
+                             SnapshotHandler snapshotHandler) {
+        this.hubRouterClient = hubRouterClient;
+        this.snapshotConsumer = snapshotConsumer;
+        this.snapshotHandler = snapshotHandler;
+    }
+
+    @Override
+    public void run() {
         try {
             snapshotConsumer.subscribe(List.of(TELEMETRY_SNAPSHOT_TOPIC));
             Runtime.getRuntime().addShutdownHook(new Thread(snapshotConsumer::wakeup));
-
             while (true) {
-                try {
-                    ConsumerRecords<String, SensorsSnapshotAvro> records = snapshotConsumer.poll(CONSUME_ATTEMPT_TIMEOUT);
-
-                    for (ConsumerRecord<String, SensorsSnapshotAvro> record : records) {
-                        SensorsSnapshotAvro snapshotAvro = record.value();
-                        snapshotHandler.handleSnapshot(snapshotAvro);
+                ConsumerRecords<String, SensorsSnapshotAvro> records =
+                        snapshotConsumer.poll(CONSUME_ATTEMPT_TIMEOUT);
+                for (ConsumerRecord<String, SensorsSnapshotAvro> record : records) {
+                    for (DeviceActionRequestProto action : snapshotHandler.handle(record.value())) {
+                        hubRouterClient.handleDeviceAction(action);
                     }
-                    snapshotConsumer.commitSync();
-                } catch (Exception e) {
-                    log.error(e.getMessage());
+                    currentOffset.put(
+                            new TopicPartition(record.topic(), record.partition()),
+                            new OffsetAndMetadata(record.offset() + 1)
+                    );
                 }
+                snapshotConsumer.commitAsync((offsets, exception) -> {
+                });
             }
         } catch (WakeupException ignored) {
             // игнорируем - закрываем консьюмер и продюсер в блоке finally
-        } catch (Exception e) {
-            log.error("Ошибка чтения данных из топика {}", TELEMETRY_SNAPSHOT_TOPIC);
         } finally {
             try {
-                snapshotConsumer.commitSync();
+                snapshotConsumer.commitSync(currentOffset);
             } finally {
                 snapshotConsumer.close();
             }

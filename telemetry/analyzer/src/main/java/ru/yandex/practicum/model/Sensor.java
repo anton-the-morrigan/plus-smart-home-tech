@@ -6,11 +6,12 @@ import lombok.experimental.FieldDefaults;
 
 @Entity
 @Table(name = "sensors")
+@ToString
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Sensor {
 
@@ -19,4 +20,5 @@ public class Sensor {
 
     @Column(name = "hub_id")
     String hubId;
+
 }

@@ -6,34 +6,25 @@ import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.model.enums.ConditionType;
 import ru.yandex.practicum.model.enums.OperationType;
 
-import java.util.List;
-
 @Entity
 @Table(name = "conditions")
+@ToString
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@Builder(toBuilder = true)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class Condition {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "sensor_id")
-    Sensor sensor;
-
-    @Enumerated(EnumType.STRING)
+    @Enumerated
     ConditionType type;
 
-    @Enumerated(EnumType.STRING)
+    @Enumerated
     OperationType operation;
 
     Integer value;
-
-    @ManyToMany(mappedBy = "conditions")
-    List<Scenario> scenarios;
 }

@@ -27,6 +27,6 @@ public class AnalyzerApp {
 
         // В текущем потоке начинаем обработку
         // снимков состояния датчиков
-        snapshotProcessor.start();
+        snapshotProcessor.run();
     }
 }
