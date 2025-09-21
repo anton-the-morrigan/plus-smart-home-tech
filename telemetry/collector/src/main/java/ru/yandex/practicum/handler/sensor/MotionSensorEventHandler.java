@@ -1,7 +1,7 @@
 package ru.yandex.practicum.handler.sensor;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.grpc.telemetry.event.MotionSensorEventProto;
+import ru.yandex.practicum.grpc.telemetry.event.MotionSensorProto;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
 import ru.yandex.practicum.handler.EventProducer;
 import ru.yandex.practicum.kafka.telemetry.event.MotionSensorAvro;
@@ -25,7 +25,7 @@ public class MotionSensorEventHandler extends SensorEventHandlerImpl<MotionSenso
 
     @Override
     protected MotionSensorAvro mapToAvro(SensorEventProto event) {
-        MotionSensorEventProto motionSensorEvent = event.getMotionSensorEvent();
+        MotionSensorProto motionSensorEvent = event.getMotionSensorEvent();
         return MotionSensorAvro.newBuilder()
                 .setMotion(motionSensorEvent.getMotion())
                 .setLinkQuality(motionSensorEvent.getLinkQuality())

@@ -22,7 +22,6 @@ public class KafkaConsumerConfig {
     @Bean
     public KafkaConsumer<String, SpecificRecordBase> getConsumer() {
         Properties config = new Properties();
-        config.put(ConsumerConfig.CLIENT_ID_CONFIG, "sensor-event-consumer");
         config.put(ConsumerConfig.GROUP_ID_CONFIG, "aggregator-group");
         config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
