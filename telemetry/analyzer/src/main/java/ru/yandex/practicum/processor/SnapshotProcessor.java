@@ -24,15 +24,18 @@ public class SnapshotProcessor implements Runnable  {
     private final String TELEMETRY_SNAPSHOT_TOPIC = "telemetry.snapshots.v1";
 
     private final HubRouterControllerGrpc.HubRouterControllerBlockingStub hubRouterClient;
+    private final Consumer<String, SensorsSnapshotAvro> snapshotConsumer;
     private final SnapshotHandler snapshotHandler;
     private final Map<TopicPartition, OffsetAndMetadata> currentOffset = new HashMap<>();
 
-    KafkaConsumer<String, SensorsSnapshotAvro> snapshotConsumer = new KafkaConsumer<>(getConsumerProperties());
+    //KafkaConsumer<String, SensorsSnapshotAvro> snapshotConsumer = new KafkaConsumer<>(getConsumerProperties());
 
     public SnapshotProcessor(@GrpcClient("hub-router")
                              HubRouterControllerGrpc.HubRouterControllerBlockingStub hubRouterClient,
+                             Consumer<String, SensorsSnapshotAvro> snapshotConsumer,
                              SnapshotHandler snapshotHandler) {
         this.hubRouterClient = hubRouterClient;
+        this.snapshotConsumer = snapshotConsumer;
         this.snapshotHandler = snapshotHandler;
     }
 
@@ -67,12 +70,12 @@ public class SnapshotProcessor implements Runnable  {
         }
     }
 
-    private Properties getConsumerProperties() {
-        Properties config = new Properties();
-        config.put(ConsumerConfig.GROUP_ID_CONFIG, "analyzer-consumer");
-        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, SensorSnapshotDeserializer.class);
-        return config;
-    }
+//    private Properties getConsumerProperties() {
+//        Properties config = new Properties();
+//        config.put(ConsumerConfig.GROUP_ID_CONFIG, "analyzer-consumer");
+//        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
+//        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+//        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, SensorSnapshotDeserializer.class);
+//        return config;
+//    }
 }

@@ -11,3 +11,17 @@ grpc.client.hub-router.address=static://localhost:59090
 grpc.client.hub-router.enableKeepAlive=true
 grpc.client.hub-router.keepAliveWithoutCalls=true
 grpc.client.hub-router.negotiationType=plaintext
+
+  
+analyzer.kafka.consumer.sensor_snapshot.bootstrap.servers=localhost:9092
+analyzer.kafka.consumer.sensor_snapshot.key.deserializer=org.apache.kafka.common.serialization.StringDeserializer
+analyzer.kafka.consumer.sensor_snapshot.value.deserializer=ru.yandex.practicum.kafka.telemetry.deserializer.SensorSnapshotDeserializer
+analyzer.kafka.consumer.sensor_snapshot.group.id=analyzer-consumer
+analyzer.kafka.consumer.sensor_snapshot.enable.auto.commit=false
+
+
+analyzer.kafka.consumer.hub_event.bootstrap.servers=localhost:9092
+analyzer.kafka.consumer.hub_event.key.deserializer=org.apache.kafka.common.serialization.StringDeserializer
+analyzer.kafka.consumer.hub_event.value.deserializer=ru.yandex.practicum.kafka.telemetry.deserializer.HubEventDeserializer
+analyzer.kafka.consumer.hub_event.group.id=analyzer-consumer
+analyzer.kafka.consumer.hub_event.enable.auto.commit=false
