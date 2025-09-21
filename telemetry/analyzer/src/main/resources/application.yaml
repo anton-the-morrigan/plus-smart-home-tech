@@ -14,8 +14,8 @@ analyzer:
         group.id: "analyzer-consumer"
         enable.auto.commit: false
       poll_duration_seconds:
-        sensor_snapshot: 5
-        hub_event: 5
+        sensor_snapshot: 10
+        hub_event: 10
 
 grpc:
   client:
