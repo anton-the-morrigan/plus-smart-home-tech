@@ -1,5 +1,6 @@
 package ru.yandex.practicum.mapper;
 
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.ActionTypeProto;
 import ru.yandex.practicum.kafka.telemetry.event.ActionTypeAvro;
 import ru.yandex.practicum.kafka.telemetry.event.ConditionOperationAvro;
@@ -8,6 +9,7 @@ import ru.yandex.practicum.model.enums.ActionType;
 import ru.yandex.practicum.model.enums.ConditionOperation;
 import ru.yandex.practicum.model.enums.ConditionType;
 
+@Component
 public class Mapper {
 
     public ConditionType toConditionType(ConditionTypeAvro typeAvro) {
