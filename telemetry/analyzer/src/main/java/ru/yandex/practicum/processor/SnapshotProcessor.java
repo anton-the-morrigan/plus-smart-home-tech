@@ -31,7 +31,6 @@ public class SnapshotProcessor {
 
     public SnapshotProcessor(@GrpcClient("hub-router")
                              HubRouterControllerGrpc.HubRouterControllerBlockingStub hubRouterClient,
-                             Consumer<String, SensorsSnapshotAvro> snapshotConsumer,
                              SnapshotHandler snapshotHandler) {
         this.hubRouterClient = hubRouterClient;
         this.snapshotHandler = snapshotHandler;
