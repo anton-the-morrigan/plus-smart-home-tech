@@ -4,13 +4,13 @@ analyzer:
       sensor_snapshot:
         bootstrap.servers: "localhost:9092"
         key.deserializer: "org.apache.kafka.common.serialization.StringDeserializer"
-        value.deserializer: "ru.yandex.practicum.kafka.telemetry.deserializer.SensorSnapshotDeserializer"
+        value.deserializer: "ru.yandex.practicum.SensorSnapshotDeserializer"
         group.id: "analyzer-consumer"
         enable.auto.commit: false
       hub_event:
         bootstrap.servers: "localhost:9092"
         key.deserializer: "org.apache.kafka.common.serialization.StringDeserializer"
-        value.deserializer: "ru.yandex.practicum.kafka.telemetry.deserializer.HubEventDeserializer"
+        value.deserializer: "ru.yandex.practicum.HubEventDeserializer"
         group.id: "analyzer-consumer"
         enable.auto.commit: false
       poll_duration_seconds:
