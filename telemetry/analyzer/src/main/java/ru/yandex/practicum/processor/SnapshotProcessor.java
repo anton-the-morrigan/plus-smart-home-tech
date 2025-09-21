@@ -1,5 +1,6 @@
 package ru.yandex.practicum.processor;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -14,36 +15,37 @@ import java.util.List;
 
 @Slf4j
 @Component
-public class SnapshotProcessor implements Runnable {
-    private final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(1000);
+@RequiredArgsConstructor
+public class SnapshotProcessor {
+    private final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(10000);
     private final String TELEMETRY_SNAPSHOT_TOPIC = "telemetry.snapshots.v1";
 
     private final Consumer<String, SensorsSnapshotAvro> snapshotConsumer;
     private final SnapshotHandler snapshotHandler;
 
-    public SnapshotProcessor(Consumer<String, SensorsSnapshotAvro> snapshotConsumer, SnapshotHandler snapshotHandler) {
-        this.snapshotConsumer = snapshotConsumer;
-        this.snapshotHandler = snapshotHandler;
-    }
-
-    public void run() {
+    public void start() {
         log.info("SnapshotProcessor run");
         try {
             snapshotConsumer.subscribe(List.of(TELEMETRY_SNAPSHOT_TOPIC));
             Runtime.getRuntime().addShutdownHook(new Thread(snapshotConsumer::wakeup));
 
             while (true) {
-                ConsumerRecords<String, SensorsSnapshotAvro> records = snapshotConsumer.poll(CONSUME_ATTEMPT_TIMEOUT);
+                try {
+                    ConsumerRecords<String, SensorsSnapshotAvro> records = snapshotConsumer.poll(CONSUME_ATTEMPT_TIMEOUT);
 
-                for (ConsumerRecord<String, SensorsSnapshotAvro> record : records) {
-                    SensorsSnapshotAvro snapshotAvro = record.value();
-                    snapshotHandler.handleSnapshot(snapshotAvro);
+                    for (ConsumerRecord<String, SensorsSnapshotAvro> record : records) {
+                        SensorsSnapshotAvro snapshotAvro = record.value();
+                        snapshotHandler.handleSnapshot(snapshotAvro);
+                    }
+                    snapshotConsumer.commitSync();
+                } catch (Exception e) {
+                    log.error(e.getMessage());
                 }
-                snapshotConsumer.commitSync();
-
             }
         } catch (WakeupException ignored) {
             // игнорируем - закрываем консьюмер и продюсер в блоке finally
+        } catch (Exception e) {
+            log.error("Ошибка чтения данных из топика {}", TELEMETRY_SNAPSHOT_TOPIC);
         } finally {
             try {
                 snapshotConsumer.commitSync();

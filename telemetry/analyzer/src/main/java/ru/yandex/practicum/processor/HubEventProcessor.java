@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class HubEventProcessor implements Runnable {
-    private final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(1000);
+    private final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(10000);
     private final String TELEMETRY_HUBS_TOPIC = "telemetry.hubs.v1";
 
     private final Consumer<String, HubEventAvro> hubConsumer;
@@ -47,17 +47,20 @@ public class HubEventProcessor implements Runnable {
                     if (hubHandlers.containsKey(payload)) {
                         hubHandlers.get(payload).handle(hubEvent);
                     } else {
-                        throw new IllegalArgumentException("отсутствует хендлер для события " + hubEvent);
+                        throw new IllegalArgumentException("Отсутствует handler для события " + hubEvent);
                     }
                 }
                 hubConsumer.commitSync();
             }
         } catch (WakeupException ignored) {
             // игнорируем - закрываем консьюмер и продюсер в блоке finally
+        } catch (Exception e) {
+            log.error("Ошибка чтения данных из топика {}", TELEMETRY_HUBS_TOPIC);
         } finally {
             try {
                 hubConsumer.commitSync();
             } finally {
+                log.info("Закрываем консьюмер");
                 hubConsumer.close();
             }
         }

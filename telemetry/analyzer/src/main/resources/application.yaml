@@ -30,7 +30,9 @@ grpc:
 
 logging:
   level:
-    root: DEBUG
-    org.springframework.web: DEBUG
-    guru.springframework.controllers: DEBUG
-    org.hibernate: DEBUG
+    "org.zalando.logbook": TRACE
+    "org.springframework.orm.jpa": INFO
+    "org.springframework.orm.jpa.JpaTransactionManager": DEBUG
+    "org.springframework.transaction": INFO
+    "org.springframework.transaction.interceptor": TRACE
+    org.springframework.jdbc.datasource.init: DEBUG

@@ -22,7 +22,7 @@ public class ActionProducer {
 
     public void sendAction(Scenario scenario) {
         try {
-            log.debug("ActionProducer sendAction");
+            log.info("ActionProducer sendAction");
             String hubId = scenario.getHubId();
             String scenarioName = scenario.getName();
             for (Action action : scenario.getActions()) {
@@ -48,6 +48,7 @@ public class ActionProducer {
 
                 hubRouterClient.handleDeviceAction(request);
             }
+
         } catch (Exception e) {
             log.error("Ошибка при отправке действия: {}", e.getMessage(), e);
             throw e;
