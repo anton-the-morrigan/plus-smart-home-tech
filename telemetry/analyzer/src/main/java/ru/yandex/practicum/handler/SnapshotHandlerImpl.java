@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.grpc.telemetry.event.ActionTypeProto;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionProto;
-import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequestProto;
+import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequest;
 import ru.yandex.practicum.kafka.telemetry.event.*;
 import ru.yandex.practicum.model.Action;
 import ru.yandex.practicum.model.Condition;
@@ -28,7 +28,7 @@ public class SnapshotHandlerImpl implements SnapshotHandler {
     private final ScenarioRepository scenarioRepository;
 
     @Override
-    public List<DeviceActionRequestProto> handle(SensorsSnapshotAvro snapshot) {
+    public List<DeviceActionRequest> handle(SensorsSnapshotAvro snapshot) {
         String hubId = snapshot.getHubId();
         if (snapshots.containsKey(hubId)) {
             SensorsSnapshotAvro sensorsSnapshotAvro = snapshots.get(hubId);
@@ -39,7 +39,7 @@ public class SnapshotHandlerImpl implements SnapshotHandler {
             }
         }
         snapshots.put(hubId, snapshot);
-        List<DeviceActionRequestProto> actionRequests = new ArrayList<>();
+        List<DeviceActionRequest> actionRequests = new ArrayList<>();
         for (Scenario scenario : scenarioRepository.findByHubId(snapshot.getHubId())) {
             Map<String, Condition> conditions = scenario.getConditions();
             if (!snapshot.getSensorsState().keySet().containsAll(conditions.keySet())) {
@@ -50,7 +50,7 @@ public class SnapshotHandlerImpl implements SnapshotHandler {
                 Map<String, Action> actions = scenario.getActions();
                 for (Map.Entry<String, Action> entry : actions.entrySet()) {
                     Action action = entry.getValue();
-                    actionRequests.add(DeviceActionRequestProto.newBuilder()
+                    actionRequests.add(DeviceActionRequest.newBuilder()
                             .setScenarioName(scenario.getName())
                             .setHubId(scenario.getHubId())
                             .setAction(DeviceActionProto.newBuilder()

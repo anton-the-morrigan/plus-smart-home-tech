@@ -8,7 +8,7 @@ import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequestProto;
+import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequest;
 import ru.yandex.practicum.grpc.telemetry.hubrouter.HubRouterControllerGrpc;
 import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 import ru.yandex.practicum.handler.SnapshotHandler;
@@ -46,7 +46,7 @@ public class SnapshotProcessor {
                 ConsumerRecords<String, SensorsSnapshotAvro> records =
                         snapshotConsumer.poll(CONSUME_ATTEMPT_TIMEOUT);
                 for (ConsumerRecord<String, SensorsSnapshotAvro> record : records) {
-                    for (DeviceActionRequestProto action : snapshotHandler.handle(record.value())) {
+                    for (DeviceActionRequest action : snapshotHandler.handle(record.value())) {
                         hubRouterClient.handleDeviceAction(action);
                     }
                     currentOffset.put(
