@@ -1,5 +1,6 @@
 package ru.yandex.practicum.processor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -15,6 +16,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class HubEventProcessor implements Runnable {
     private final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(1000);
@@ -30,6 +32,7 @@ public class HubEventProcessor implements Runnable {
 
     @Override
     public void run() {
+        log.debug("HubEventProcessor run");
         try {
             hubConsumer.subscribe(List.of(TELEMETRY_HUBS_TOPIC));
             Runtime.getRuntime().addShutdownHook(new Thread(hubConsumer::wakeup));

@@ -1,6 +1,7 @@
 package ru.yandex.practicum.producer;
 
 import com.google.protobuf.Timestamp;
+import lombok.extern.slf4j.Slf4j;
 import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.grpc.telemetry.event.ActionTypeProto;
@@ -13,12 +14,14 @@ import ru.yandex.practicum.model.enums.ActionType;
 
 import java.time.Instant;
 
+@Slf4j
 @Service
 public class ActionProducer {
     @GrpcClient("hub-router")
     private HubRouterControllerGrpc.HubRouterControllerBlockingStub hubRouterClient;
 
     public void sendAction(Scenario scenario) {
+        log.debug("ActionProducer sendAction");
         String hubId = scenario.getHubId();
         String scenarioName = scenario.getName();
         for (Action action : scenario.getActions()) {

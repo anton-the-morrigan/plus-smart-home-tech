@@ -1,5 +1,6 @@
 package ru.yandex.practicum.processor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.Consumer;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -11,6 +12,7 @@ import ru.yandex.practicum.kafka.telemetry.event.SensorsSnapshotAvro;
 import java.time.Duration;
 import java.util.List;
 
+@Slf4j
 @Component
 public class SnapshotProcessor implements Runnable {
     private final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(1000);
@@ -25,6 +27,7 @@ public class SnapshotProcessor implements Runnable {
     }
 
     public void run() {
+        log.debug("SnapshotProcessor run");
         try {
             snapshotConsumer.subscribe(List.of(TELEMETRY_SNAPSHOT_TOPIC));
             Runtime.getRuntime().addShutdownHook(new Thread(snapshotConsumer::wakeup));

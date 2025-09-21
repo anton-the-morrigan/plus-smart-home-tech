@@ -1,5 +1,6 @@
 package ru.yandex.practicum.handler.snapshot;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.producer.ActionProducer;
 import ru.yandex.practicum.handler.sensor.SensorEventHandler;
@@ -16,6 +17,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Component
 public class SnapshotHandler {
     private final ScenarioRepository scenarioRepository;
@@ -34,6 +36,7 @@ public class SnapshotHandler {
     }
 
     public void handleSnapshot(SensorsSnapshotAvro sensorsSnapshotAvro) {
+        log.debug("SnapshotHandler handleSnapshot");
         List<Scenario> scenarios = getScenariosBySnapshots(sensorsSnapshotAvro);
         for (Scenario scenario : scenarios) {
             ActionProducer.sendAction(scenario);
