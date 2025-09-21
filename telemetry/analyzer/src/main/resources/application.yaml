@@ -1,7 +1,7 @@
 spring:
   datasource:
     driverClassName: "org.postgresql.Driver"
-    url: "jdbc:postgresql://localhost:5434/telemetry_analyzer"
+    url: "jdbc:postgresql://localhost:5432/telemetry_analyzer"
     username: "analyzer"
     password: "analyzer"
   jpa:

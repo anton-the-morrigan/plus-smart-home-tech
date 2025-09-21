@@ -11,7 +11,7 @@ import ru.yandex.practicum.model.Action;
 import ru.yandex.practicum.model.Condition;
 import ru.yandex.practicum.model.Scenario;
 import ru.yandex.practicum.model.enums.ActionType;
-import ru.yandex.practicum.model.enums.OperationType;
+import ru.yandex.practicum.model.enums.ConditionOperation;
 import ru.yandex.practicum.repository.ScenarioRepository;
 
 import java.time.Instant;
@@ -70,27 +70,27 @@ public class SnapshotHandlerImpl implements SnapshotHandler {
             Object data = snapshotAvro.getSensorsState().get(entry.getKey()).getData();
             Condition condition = entry.getValue();
             Integer value = condition.getValue();
-            OperationType operationType = condition.getOperation();
+            ConditionOperation conditionOperation = condition.getOperation();
             if (!switch (condition.getType()) {
                 case TEMPERATURE -> {
                     if (data instanceof TemperatureSensorAvro temperatureState) {
-                        yield checkByOperationType(temperatureState.getTemperatureC(), value, operationType);
+                        yield checkByOperationType(temperatureState.getTemperatureC(), value, conditionOperation);
                     } else {
                         ClimateSensorAvro climateState = (ClimateSensorAvro) data;
-                        yield checkByOperationType(climateState.getTemperatureC(), value, operationType);
+                        yield checkByOperationType(climateState.getTemperatureC(), value, conditionOperation);
                     }
                 }
                 case LUMINOSITY -> {
                     LightSensorAvro lightSensorState = (LightSensorAvro) data;
-                    yield checkByOperationType(lightSensorState.getLuminosity(), value, operationType);
+                    yield checkByOperationType(lightSensorState.getLuminosity(), value, conditionOperation);
                 }
                 case HUMIDITY -> {
                     ClimateSensorAvro climateSensorState = (ClimateSensorAvro) data;
-                    yield checkByOperationType(climateSensorState.getHumidity(), value, operationType);
+                    yield checkByOperationType(climateSensorState.getHumidity(), value, conditionOperation);
                 }
                 case CO2LEVEL -> {
                     ClimateSensorAvro climateSensorState = (ClimateSensorAvro) data;
-                    yield checkByOperationType(climateSensorState.getCo2Level(), value, operationType);
+                    yield checkByOperationType(climateSensorState.getCo2Level(), value, conditionOperation);
                 }
                 case SWITCH -> {
                     SwitchSensorAvro switchSensorState = (SwitchSensorAvro) data;
@@ -105,7 +105,7 @@ public class SnapshotHandlerImpl implements SnapshotHandler {
         return true;
     }
 
-    private boolean checkByOperationType(int currentValue, int conditionValue, OperationType type) {
+    private boolean checkByOperationType(int currentValue, int conditionValue, ConditionOperation type) {
         return switch (type) {
             case EQUALS -> currentValue == conditionValue;
             case GREATER_THAN -> currentValue > conditionValue;

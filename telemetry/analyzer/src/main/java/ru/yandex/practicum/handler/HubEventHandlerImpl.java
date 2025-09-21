@@ -11,7 +11,7 @@ import ru.yandex.practicum.model.Scenario;
 import ru.yandex.practicum.model.Sensor;
 import ru.yandex.practicum.model.enums.ActionType;
 import ru.yandex.practicum.model.enums.ConditionType;
-import ru.yandex.practicum.model.enums.OperationType;
+import ru.yandex.practicum.model.enums.ConditionOperation;
 import ru.yandex.practicum.repository.ActionRepository;
 import ru.yandex.practicum.repository.ConditionRepository;
 import ru.yandex.practicum.repository.ScenarioRepository;
@@ -133,11 +133,11 @@ public class HubEventHandlerImpl implements HubEventHandler {
         };
     }
 
-    private OperationType mapToOperationType(ConditionOperationAvro typeAvro) {
+    private ConditionOperation mapToOperationType(ConditionOperationAvro typeAvro) {
         return switch (typeAvro) {
-            case EQUALS -> OperationType.EQUALS;
-            case LOWER_THAN -> OperationType.LOWER_THAN;
-            case GREATER_THAN -> OperationType.GREATER_THAN;
+            case EQUALS -> ConditionOperation.EQUALS;
+            case LOWER_THAN -> ConditionOperation.LOWER_THAN;
+            case GREATER_THAN -> ConditionOperation.GREATER_THAN;
         };
     }
 

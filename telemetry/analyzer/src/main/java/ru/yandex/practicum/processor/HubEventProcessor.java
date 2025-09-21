@@ -30,8 +30,8 @@ public class HubEventProcessor implements Runnable {
     @Override
     public void run() {
         try {
-            hubConsumer.subscribe(List.of(TELEMETRY_HUBS_TOPIC));
             Runtime.getRuntime().addShutdownHook(new Thread(hubConsumer::wakeup));
+            hubConsumer.subscribe(List.of(TELEMETRY_HUBS_TOPIC));
             while (true) {
                 ConsumerRecords<String, HubEventAvro> records =
                         hubConsumer.poll(CONSUME_ATTEMPT_TIMEOUT);

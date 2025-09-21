@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.yandex.practicum.model.enums.ConditionType;
-import ru.yandex.practicum.model.enums.OperationType;
+import ru.yandex.practicum.model.enums.ConditionOperation;
 
 @Entity
 @Table(name = "conditions")
@@ -24,7 +24,7 @@ public class Condition {
     ConditionType type;
 
     @Enumerated
-    OperationType operation;
+    ConditionOperation operation;
 
     Integer value;
 }
