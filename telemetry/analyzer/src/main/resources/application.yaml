@@ -30,5 +30,4 @@ grpc:
 
 logging:
   level:
-    org:
-      hibernate: debug
+    root: DEBUG
