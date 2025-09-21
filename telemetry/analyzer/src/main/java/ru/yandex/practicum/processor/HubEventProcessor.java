@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Component
 public class HubEventProcessor implements Runnable {
-    private final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(10000);
+    private final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(1000);
     private final String TELEMETRY_HUBS_TOPIC = "telemetry.hubs.v1";
 
     private final Consumer<String, HubEventAvro> hubConsumer;

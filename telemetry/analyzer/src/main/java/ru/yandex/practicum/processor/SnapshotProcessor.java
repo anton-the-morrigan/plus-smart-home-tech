@@ -17,7 +17,7 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class SnapshotProcessor {
-    private final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(10000);
+    private final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(1000);
     private final String TELEMETRY_SNAPSHOT_TOPIC = "telemetry.snapshots.v1";
 
     private final Consumer<String, SensorsSnapshotAvro> snapshotConsumer;
