@@ -20,7 +20,7 @@ import java.util.Properties;
 
 @Service
 public class SnapshotProcessor implements Runnable  {
-    private final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(1000);
+    private final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(5000);
     private final String TELEMETRY_SNAPSHOT_TOPIC = "telemetry.snapshots.v1";
 
     private final HubRouterControllerGrpc.HubRouterControllerBlockingStub hubRouterClient;
