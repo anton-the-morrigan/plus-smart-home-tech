@@ -42,6 +42,9 @@ public class SnapshotHandlerImpl implements SnapshotHandler {
         List<DeviceActionRequest> actionRequests = new ArrayList<>();
         for (Scenario scenario : scenarioRepository.findByHubId(snapshot.getHubId())) {
             Map<String, Condition> conditions = scenario.getConditions();
+            if (!snapshot.getSensorsState().keySet().containsAll(conditions.keySet())) {
+                continue;
+            }
             if (checkConditions(conditions, snapshot)) {
                 Map<String, Action> actions = scenario.getActions();
                 for (Map.Entry<String, Action> entry : actions.entrySet()) {
