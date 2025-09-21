@@ -5,9 +5,7 @@ import net.devh.boot.grpc.client.inject.GrpcClient;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.SensorSnapshotDeserializer;
 import ru.yandex.practicum.config.KafkaConsumerProperties;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequest;
 import ru.yandex.practicum.grpc.telemetry.hubrouter.HubRouterControllerGrpc;
@@ -18,7 +16,6 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 @Service
 @Slf4j

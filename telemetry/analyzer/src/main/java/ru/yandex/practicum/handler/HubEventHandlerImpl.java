@@ -6,13 +6,11 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.exception.DuplicateException;
 import ru.yandex.practicum.exception.NotFoundException;
 import ru.yandex.practicum.kafka.telemetry.event.*;
+import ru.yandex.practicum.mapper.Mapper;
 import ru.yandex.practicum.model.Action;
 import ru.yandex.practicum.model.Condition;
 import ru.yandex.practicum.model.Scenario;
 import ru.yandex.practicum.model.Sensor;
-import ru.yandex.practicum.model.enums.ActionType;
-import ru.yandex.practicum.model.enums.ConditionType;
-import ru.yandex.practicum.model.enums.ConditionOperation;
 import ru.yandex.practicum.repository.ActionRepository;
 import ru.yandex.practicum.repository.ConditionRepository;
 import ru.yandex.practicum.repository.ScenarioRepository;
@@ -29,6 +27,7 @@ public class HubEventHandlerImpl implements HubEventHandler {
     private final ConditionRepository conditionRepository;
     private final ActionRepository actionRepository;
     private final SensorRepository sensorRepository;
+    private final Mapper mapper;
 
     @Override
     @Transactional
@@ -52,13 +51,13 @@ public class HubEventHandlerImpl implements HubEventHandler {
         checkSensorIds(eventAvro, hubId);
         Map<String, Condition> conditions = eventAvro.getConditions().stream()
                 .collect(Collectors.toMap(ScenarioConditionAvro::getSensorId, condition -> Condition.builder()
-                        .type(mapToConditionType(condition.getType()))
-                        .operation(mapToConditionOperation(condition.getOperation()))
+                        .type(mapper.toConditionType(condition.getType()))
+                        .operation(mapper.toConditionOperation(condition.getOperation()))
                         .value(extractValue(condition))
                         .build()));
         Map<String, Action> actions = eventAvro.getActions().stream()
                 .collect(Collectors.toMap(DeviceActionAvro::getSensorId, action -> Action.builder()
-                        .type(mapToActionType(action.getType()))
+                        .type(mapper.toActionType(action.getType()))
                         .value(action.getValue())
                         .build()
                 ));
@@ -123,40 +122,11 @@ public class HubEventHandlerImpl implements HubEventHandler {
         }
     }
 
-
-    private ConditionType mapToConditionType(ConditionTypeAvro typeAvro) {
-        return switch (typeAvro) {
-            case MOTION -> ConditionType.MOTION;
-            case SWITCH -> ConditionType.SWITCH;
-            case CO2LEVEL -> ConditionType.CO2LEVEL;
-            case HUMIDITY -> ConditionType.HUMIDITY;
-            case LUMINOSITY -> ConditionType.LUMINOSITY;
-            case TEMPERATURE -> ConditionType.TEMPERATURE;
-        };
-    }
-
-    private ConditionOperation mapToConditionOperation(ConditionOperationAvro typeAvro) {
-        return switch (typeAvro) {
-            case EQUALS -> ConditionOperation.EQUALS;
-            case LOWER_THAN -> ConditionOperation.LOWER_THAN;
-            case GREATER_THAN -> ConditionOperation.GREATER_THAN;
-        };
-    }
-
     private Integer extractValue(ScenarioConditionAvro conditionAvro) {
         Object valueObj = conditionAvro.getValue();
         if (valueObj instanceof Integer) {
             return (Integer) valueObj;
         }
         return (Boolean) valueObj ? 1 : 0;
-    }
-
-    private ActionType mapToActionType(ActionTypeAvro typeAvro) {
-        return switch (typeAvro) {
-            case INVERSE -> ActionType.INVERSE;
-            case ACTIVATE -> ActionType.ACTIVATE;
-            case DEACTIVATE -> ActionType.DEACTIVATE;
-            case SET_VALUE -> ActionType.SET_VALUE;
-        };
     }
 }

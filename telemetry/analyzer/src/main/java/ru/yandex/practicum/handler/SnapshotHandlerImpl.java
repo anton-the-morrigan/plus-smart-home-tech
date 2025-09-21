@@ -8,6 +8,7 @@ import ru.yandex.practicum.grpc.telemetry.event.ActionTypeProto;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionProto;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequest;
 import ru.yandex.practicum.kafka.telemetry.event.*;
+import ru.yandex.practicum.mapper.Mapper;
 import ru.yandex.practicum.model.Action;
 import ru.yandex.practicum.model.Condition;
 import ru.yandex.practicum.model.Scenario;
@@ -27,6 +28,7 @@ import java.util.Map;
 public class SnapshotHandlerImpl implements SnapshotHandler {
     private final Map<String, SensorsSnapshotAvro> snapshots = new HashMap<>();
     private final ScenarioRepository scenarioRepository;
+    private final Mapper mapper;
 
     @Override
     @Transactional(readOnly = true)
@@ -57,7 +59,7 @@ public class SnapshotHandlerImpl implements SnapshotHandler {
                             .setHubId(scenario.getHubId())
                             .setAction(DeviceActionProto.newBuilder()
                                     .setSensorId(entry.getKey())
-                                    .setType(mapToActionTypeProto(action.getType()))
+                                    .setType(mapper.toActionTypeProto(action.getType()))
                                     .setValue(action.getValue())
                                     .build())
                             .build());
@@ -112,15 +114,6 @@ public class SnapshotHandlerImpl implements SnapshotHandler {
             case EQUALS -> currentValue == conditionValue;
             case GREATER_THAN -> currentValue > conditionValue;
             case LOWER_THAN -> currentValue < conditionValue;
-        };
-    }
-
-    private ActionTypeProto mapToActionTypeProto(ActionType actionType) {
-        return switch (actionType) {
-            case ACTIVATE -> ActionTypeProto.ACTIVATE;
-            case DEACTIVATE -> ActionTypeProto.DEACTIVATE;
-            case INVERSE -> ActionTypeProto.INVERSE;
-            case SET_VALUE -> ActionTypeProto.SET_VALUE;
         };
     }
 }

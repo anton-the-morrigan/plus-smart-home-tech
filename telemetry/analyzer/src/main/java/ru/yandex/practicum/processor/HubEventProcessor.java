@@ -5,9 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.HubEventDeserializer;
 import ru.yandex.practicum.config.KafkaConsumerProperties;
 import ru.yandex.practicum.exception.DuplicateException;
 import ru.yandex.practicum.exception.NotFoundException;
@@ -18,7 +16,6 @@ import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 
 @Service
 @Slf4j
