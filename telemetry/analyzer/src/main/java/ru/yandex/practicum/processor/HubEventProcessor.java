@@ -21,6 +21,8 @@ import java.util.Map;
 @Slf4j
 @RequiredArgsConstructor
 public class HubEventProcessor implements Runnable {
+    private final String TELEMETRY_HUBS_TOPIC = "telemetry.hubs.v1";
+
     private final Consumer<String, HubEventAvro> consumer;
     private final Map<TopicPartition, OffsetAndMetadata> currentOffset = new HashMap<>();
     private final HubEventHandler hubEventHandler;
@@ -29,7 +31,7 @@ public class HubEventProcessor implements Runnable {
     @Override
     public void run() {
         try {
-            consumer.subscribe(List.of("telemetry.hubs.v1"));
+            consumer.subscribe(List.of(TELEMETRY_HUBS_TOPIC));
             Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
             while (true) {
                 ConsumerRecords<String, HubEventAvro> records =
@@ -38,20 +40,17 @@ public class HubEventProcessor implements Runnable {
                     try {
                         hubEventHandler.handle(record.value());
                     } catch (DuplicateException | NotFoundException e) {
-                        log.info("При обработке получено исключение: {} {} ", e.getClass().getSimpleName(), e.getMessage());
+                        log.info("Произошло исключение");
                     }
                     currentOffset.put(
                             new TopicPartition(record.topic(), record.partition()),
                             new OffsetAndMetadata(record.offset() + 1)
                     );
                 }
-                consumer.commitAsync((offsets, exception) -> {
-                    if (exception != null) {
-                        log.warn("Во время фиксации произошла ошибка. Офсет: {}", offsets, exception);
-                    }
-                });
+                consumer.commitAsync((offsets, exception) -> {});
             }
         } catch (WakeupException ignored) {
+            // игнорируем - закрываем консьюмер и продюсер в блоке finally
         } catch (Exception e) {
             log.error("Ошибка во время обработки событий от хабов", e);
         } finally {

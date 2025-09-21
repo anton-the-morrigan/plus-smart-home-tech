@@ -1,22 +1,3 @@
-analyzer:
-  kafka:
-    consumer:
-      sensor_snapshot:
-        bootstrap.servers: "localhost:9092"
-        key.deserializer: "org.apache.kafka.common.serialization.StringDeserializer"
-        value.deserializer: "ru.yandex.practicum.SensorSnapshotDeserializer"
-        group.id: "analyzer-consumer"
-        enable.auto.commit: false
-      hub_event:
-        bootstrap.servers: "localhost:9092"
-        key.deserializer: "org.apache.kafka.common.serialization.StringDeserializer"
-        value.deserializer: "ru.yandex.practicum.HubEventDeserializer"
-        group.id: "analyzer-consumer"
-        enable.auto.commit: false
-      poll_duration_seconds:
-        sensor_snapshot: 10
-        hub_event: 10
-
 grpc:
   client:
     hub-router:
@@ -35,3 +16,22 @@ spring:
     url: "jdbc:postgresql://localhost:5434/telemetry_analyzer"
     username: "analyzer"
     password: "analyzer"
+
+analyzer:
+  kafka:
+    consumer:
+      sensor_snapshot:
+        bootstrap.servers: "localhost:9092"
+        key.deserializer: "org.apache.kafka.common.serialization.StringDeserializer"
+        value.deserializer: "ru.yandex.practicum.SensorSnapshotDeserializer"
+        group.id: "analyzer-consumer"
+        enable.auto.commit: false
+      hub_event:
+        bootstrap.servers: "localhost:9092"
+        key.deserializer: "org.apache.kafka.common.serialization.StringDeserializer"
+        value.deserializer: "ru.yandex.practicum.HubEventDeserializer"
+        group.id: "analyzer-consumer"
+        enable.auto.commit: false
+      poll_duration_seconds:
+        sensor_snapshot: 10
+        hub_event: 10

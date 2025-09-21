@@ -45,8 +45,7 @@ public class HubEventHandlerImpl implements HubEventHandler {
     private void addScenario(ScenarioAddedEventAvro eventAvro, String hubId) {
         String name = eventAvro.getName();
         if (scenarioRepository.existsByHubIdAndName(hubId, name)) {
-            throw new DuplicateException("Сценарий с названием: " + name + " в пределах  хаба с id: "
-                    + hubId + " уже существует");
+            throw new DuplicateException("Сценарий уже существует");
         }
         checkSensorIds(eventAvro, hubId);
         Map<String, Condition> conditions = eventAvro.getConditions().stream()
@@ -73,8 +72,7 @@ public class HubEventHandlerImpl implements HubEventHandler {
     private void deleteScenario(ScenarioRemovedEventAvro eventAvro, String hubId) {
         String name = eventAvro.getName();
         Scenario scenario = scenarioRepository.findByHubIdAndName(hubId, name)
-                .orElseThrow(() -> new NotFoundException("Сценарий c названием: " + name +
-                        " не найден в пределах хаба c id: " + hubId));
+                .orElseThrow(() -> new NotFoundException("Сценарий не найден"));
         Set<Long> conditionIds = scenario.getConditions().values().stream().map(Condition::getId).collect(Collectors.toSet());
         conditionRepository.deleteAllById(conditionIds);
         Set<Long> actionIds = scenario.getActions().values().stream().map(Action::getId).collect(Collectors.toSet());
@@ -85,7 +83,7 @@ public class HubEventHandlerImpl implements HubEventHandler {
     private void addDevice(DeviceAddedEventAvro eventAvro, String hubId) {
         String sensorId = eventAvro.getId();
         if (sensorRepository.existsById(sensorId)) {
-            throw new DuplicateException("Устройство с id: " + sensorId + " уже существует");
+            throw new DuplicateException("Устройство уже существует");
         }
         sensorRepository.save(Sensor.builder()
                 .id(sensorId)
@@ -96,8 +94,7 @@ public class HubEventHandlerImpl implements HubEventHandler {
     private void deleteDevice(DeviceRemovedEventAvro eventAvro, String hubId) {
         String sensorId = eventAvro.getId();
         if (!sensorRepository.existsByIdAndHubId(sensorId, hubId)) {
-            throw new NotFoundException("Устройства с id: " + sensorId + " в рамках хаба с id: " + hubId +
-                    " не существует");
+            throw new NotFoundException("Устройство не существует");
         }
         sensorRepository.deleteById(sensorId);
     }
@@ -109,16 +106,14 @@ public class HubEventHandlerImpl implements HubEventHandler {
             throw new DuplicateException("Недопустимо указывать одновременно два условия для одного и того же датчика");
         }
         if (sensorRepository.findByIdInAndHubId(ids, hubId).size() != ids.size()) {
-            throw new NotFoundException("id некоторых датчиков указанных в условии сценария " +
-                    " не найдены в рамках данного хаба");
+            throw new NotFoundException("Id датчиков не найдены в рамках данного хаба");
         }
         ids = eventAvro.getActions().stream().map(DeviceActionAvro::getSensorId).collect(Collectors.toSet());
         if (ids.size() < eventAvro.getActions().size()) {
             throw new DuplicateException("Недопустимо указывать одновременно два действия для одного и того же устройства");
         }
         if (sensorRepository.findByIdInAndHubId(ids, hubId).size() != ids.size()) {
-            throw new DuplicateException("id некоторых устройств указанных в действиях по сценарию " +
-                    "не найдены в рамках данного хаба");
+            throw new DuplicateException("Id устройств не найдены в рамках данного хаба");
         }
     }
 
