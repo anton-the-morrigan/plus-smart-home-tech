@@ -14,4 +14,11 @@ import java.util.Properties;
 public class KafkaConsumerProperties {
     private Properties sensorSnapshot;
     private Properties hubEvent;
+    private PollDuration pollDurationSeconds;
+
+    @ToString @Getter @Setter
+    public static class PollDuration {
+        private Long sensorSnapshot;
+        private Long hubEvent;
+    }
 }

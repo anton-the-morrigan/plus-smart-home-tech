@@ -1,12 +1,16 @@
 package ru.yandex.practicum.processor;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.errors.WakeupException;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.HubEventDeserializer;
+import ru.yandex.practicum.config.KafkaConsumerProperties;
+import ru.yandex.practicum.exception.DuplicateException;
+import ru.yandex.practicum.exception.NotFoundException;
 import ru.yandex.practicum.kafka.telemetry.event.HubEventAvro;
 import ru.yandex.practicum.handler.HubEventHandler;
 
@@ -17,52 +21,49 @@ import java.util.Map;
 import java.util.Properties;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class HubEventProcessor implements Runnable {
-    private final Duration CONSUME_ATTEMPT_TIMEOUT = Duration.ofMillis(5000);
-    private final String TELEMETRY_HUBS_TOPIC = "telemetry.hubs.v1";
-
-    private final Consumer<String, HubEventAvro> hubConsumer;
-    private final HubEventHandler hubEventHandler;
+    private final Consumer<String, HubEventAvro> consumer;
     private final Map<TopicPartition, OffsetAndMetadata> currentOffset = new HashMap<>();
-
-    //KafkaConsumer<String, HubEventAvro> hubConsumer = new KafkaConsumer<>(getConsumerProperties());
+    private final HubEventHandler hubEventHandler;
+    private final KafkaConsumerProperties properties;
 
     @Override
     public void run() {
         try {
-            Runtime.getRuntime().addShutdownHook(new Thread(hubConsumer::wakeup));
-            hubConsumer.subscribe(List.of(TELEMETRY_HUBS_TOPIC));
+            consumer.subscribe(List.of("telemetry.hubs.v1"));
+            Runtime.getRuntime().addShutdownHook(new Thread(consumer::wakeup));
             while (true) {
                 ConsumerRecords<String, HubEventAvro> records =
-                        hubConsumer.poll(CONSUME_ATTEMPT_TIMEOUT);
+                        consumer.poll(Duration.ofSeconds(properties.getPollDurationSeconds().getHubEvent()));
                 for (ConsumerRecord<String, HubEventAvro> record : records) {
-                    hubEventHandler.handle(record.value());
+                    try {
+                        hubEventHandler.handle(record.value());
+                    } catch (DuplicateException | NotFoundException e) {
+                        log.info("При обработке получено исключение: {} {} ", e.getClass().getSimpleName(), e.getMessage());
+                    }
                     currentOffset.put(
                             new TopicPartition(record.topic(), record.partition()),
                             new OffsetAndMetadata(record.offset() + 1)
                     );
                 }
-                hubConsumer.commitAsync((offsets, exception) -> {
+                consumer.commitAsync((offsets, exception) -> {
+                    if (exception != null) {
+                        log.warn("Во время фиксации произошла ошибка. Офсет: {}", offsets, exception);
+                    }
                 });
             }
         } catch (WakeupException ignored) {
-            // игнорируем - закрываем консьюмер и продюсер в блоке finally
+        } catch (Exception e) {
+            log.error("Ошибка во время обработки событий от хабов", e);
         } finally {
             try {
-                hubConsumer.commitSync(currentOffset);
+                consumer.commitSync(currentOffset);
             } finally {
-                hubConsumer.close();
+                log.info("Закрываем консьюмер");
+                consumer.close();
             }
         }
     }
-
-//    private Properties getConsumerProperties() {
-//        Properties config = new Properties();
-//        config.put(ConsumerConfig.GROUP_ID_CONFIG, "analyzer-consumer");
-//        config.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, "localhost:9092");
-//        config.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-//        config.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, HubEventDeserializer.class);
-//        return config;
-//    }
 }

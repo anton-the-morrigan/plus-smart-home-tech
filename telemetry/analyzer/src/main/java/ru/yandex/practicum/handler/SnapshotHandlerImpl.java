@@ -3,6 +3,7 @@ package ru.yandex.practicum.handler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.grpc.telemetry.event.ActionTypeProto;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionProto;
 import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequest;
@@ -28,6 +29,7 @@ public class SnapshotHandlerImpl implements SnapshotHandler {
     private final ScenarioRepository scenarioRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<DeviceActionRequest> handle(SensorsSnapshotAvro snapshot) {
         String hubId = snapshot.getHubId();
         if (snapshots.containsKey(hubId)) {
@@ -70,27 +72,27 @@ public class SnapshotHandlerImpl implements SnapshotHandler {
             Object data = snapshotAvro.getSensorsState().get(entry.getKey()).getData();
             Condition condition = entry.getValue();
             Integer value = condition.getValue();
-            ConditionOperation conditionOperation = condition.getOperation();
+            ConditionOperation operationType = condition.getOperation();
             if (!switch (condition.getType()) {
                 case TEMPERATURE -> {
                     if (data instanceof TemperatureSensorAvro temperatureState) {
-                        yield checkByOperationType(temperatureState.getTemperatureC(), value, conditionOperation);
+                        yield checkByConditionOperation(temperatureState.getTemperatureC(), value, operationType);
                     } else {
                         ClimateSensorAvro climateState = (ClimateSensorAvro) data;
-                        yield checkByOperationType(climateState.getTemperatureC(), value, conditionOperation);
+                        yield checkByConditionOperation(climateState.getTemperatureC(), value, operationType);
                     }
                 }
                 case LUMINOSITY -> {
                     LightSensorAvro lightSensorState = (LightSensorAvro) data;
-                    yield checkByOperationType(lightSensorState.getLuminosity(), value, conditionOperation);
+                    yield checkByConditionOperation(lightSensorState.getLuminosity(), value, operationType);
                 }
                 case HUMIDITY -> {
                     ClimateSensorAvro climateSensorState = (ClimateSensorAvro) data;
-                    yield checkByOperationType(climateSensorState.getHumidity(), value, conditionOperation);
+                    yield checkByConditionOperation(climateSensorState.getHumidity(), value, operationType);
                 }
                 case CO2LEVEL -> {
                     ClimateSensorAvro climateSensorState = (ClimateSensorAvro) data;
-                    yield checkByOperationType(climateSensorState.getCo2Level(), value, conditionOperation);
+                    yield checkByConditionOperation(climateSensorState.getCo2Level(), value, operationType);
                 }
                 case SWITCH -> {
                     SwitchSensorAvro switchSensorState = (SwitchSensorAvro) data;
@@ -105,7 +107,7 @@ public class SnapshotHandlerImpl implements SnapshotHandler {
         return true;
     }
 
-    private boolean checkByOperationType(int currentValue, int conditionValue, ConditionOperation type) {
+    private boolean checkByConditionOperation(int currentValue, int conditionValue, ConditionOperation type) {
         return switch (type) {
             case EQUALS -> currentValue == conditionValue;
             case GREATER_THAN -> currentValue > conditionValue;

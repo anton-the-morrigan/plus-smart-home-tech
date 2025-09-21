@@ -2,6 +2,7 @@ package ru.yandex.practicum.handler;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.yandex.practicum.exception.DuplicateException;
 import ru.yandex.practicum.exception.NotFoundException;
 import ru.yandex.practicum.kafka.telemetry.event.*;
@@ -30,6 +31,7 @@ public class HubEventHandlerImpl implements HubEventHandler {
     private final SensorRepository sensorRepository;
 
     @Override
+    @Transactional
     public void handle(HubEventAvro event) {
         Object payload = event.getPayload();
         String hubId = event.getHubId();
@@ -51,7 +53,7 @@ public class HubEventHandlerImpl implements HubEventHandler {
         Map<String, Condition> conditions = eventAvro.getConditions().stream()
                 .collect(Collectors.toMap(ScenarioConditionAvro::getSensorId, condition -> Condition.builder()
                         .type(mapToConditionType(condition.getType()))
-                        .operation(mapToOperationType(condition.getOperation()))
+                        .operation(mapToConditionOperation(condition.getOperation()))
                         .value(extractValue(condition))
                         .build()));
         Map<String, Action> actions = eventAvro.getActions().stream()
@@ -133,7 +135,7 @@ public class HubEventHandlerImpl implements HubEventHandler {
         };
     }
 
-    private ConditionOperation mapToOperationType(ConditionOperationAvro typeAvro) {
+    private ConditionOperation mapToConditionOperation(ConditionOperationAvro typeAvro) {
         return switch (typeAvro) {
             case EQUALS -> ConditionOperation.EQUALS;
             case LOWER_THAN -> ConditionOperation.LOWER_THAN;
