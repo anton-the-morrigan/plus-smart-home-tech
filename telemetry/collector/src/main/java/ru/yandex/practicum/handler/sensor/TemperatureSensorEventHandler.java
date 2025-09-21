@@ -2,7 +2,7 @@ package ru.yandex.practicum.handler.sensor;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.grpc.telemetry.event.SensorEventProto;
-import ru.yandex.practicum.grpc.telemetry.event.TemperatureSensorEventProto;
+import ru.yandex.practicum.grpc.telemetry.event.TemperatureSensorProto;
 import ru.yandex.practicum.handler.EventProducer;
 import ru.yandex.practicum.kafka.telemetry.event.TemperatureSensorAvro;
 
@@ -25,7 +25,7 @@ public class TemperatureSensorEventHandler extends SensorEventHandlerImpl<Temper
 
     @Override
     protected TemperatureSensorAvro mapToAvro(SensorEventProto event) {
-        TemperatureSensorEventProto temperatureSensorEvent = event.getTemperatureSensorEvent();
+        TemperatureSensorProto temperatureSensorEvent = event.getTemperatureSensorEvent();
         return TemperatureSensorAvro.newBuilder()
                 .setTemperatureC(temperatureSensorEvent.getTemperatureC())
                 .setTemperatureF(temperatureSensorEvent.getTemperatureF())
