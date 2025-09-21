@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
+import ru.yandex.practicum.model.hub.enums.ConditionOperation;
+import ru.yandex.practicum.model.hub.enums.ConditionType;
 
 @SuperBuilder(toBuilder = true)
 @Getter

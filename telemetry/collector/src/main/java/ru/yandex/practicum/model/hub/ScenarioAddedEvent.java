@@ -9,6 +9,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
+import ru.yandex.practicum.model.hub.enums.HubEventType;
 
 import java.util.List;
 
