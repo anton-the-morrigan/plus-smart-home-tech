@@ -56,7 +56,11 @@ public class SnapshotProcessor implements Runnable {
                             new OffsetAndMetadata(record.offset() + 1)
                     );
                 }
-                consumer.commitAsync((offsets, exception) -> {});
+                consumer.commitAsync((offsets, exception) -> {
+                    if (exception != null) {
+                        log.warn("Во время фиксации произошла ошибка. Офсет: {}", offsets, exception);
+                    }
+                });
             }
         } catch (WakeupException ignored) {
             // игнорируем - закрываем консьюмер и продюсер в блоке finally
