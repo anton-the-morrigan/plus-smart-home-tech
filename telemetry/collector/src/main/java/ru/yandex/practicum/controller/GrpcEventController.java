@@ -35,7 +35,7 @@ public class GrpcEventController extends CollectorControllerGrpc.CollectorContro
             if (sensorEventHandlers.containsKey(payloadCase)) {
                 sensorEventHandlers.get(payloadCase).handle(request);
             } else {
-                throw new IllegalArgumentException("Не могу найти обработчик для события " + request.getPayloadCase());
+                throw new IllegalArgumentException(String.format("Не могу найти обработчик для события %s", request.getPayloadCase()));
             }
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();
@@ -51,7 +51,7 @@ public class GrpcEventController extends CollectorControllerGrpc.CollectorContro
             if (hubEventHandlers.containsKey(payloadCase)) {
                 hubEventHandlers.get(payloadCase).handle(request);
             } else {
-                throw new IllegalArgumentException("Не могу найти обработчик для события " + request.getPayloadCase());
+                throw new IllegalArgumentException(String.format("Не могу найти обработчик для события %s", request.getPayloadCase()));
             }
             responseObserver.onNext(Empty.getDefaultInstance());
             responseObserver.onCompleted();
