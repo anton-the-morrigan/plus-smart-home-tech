@@ -6,7 +6,10 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldDefaults;
+import lombok.experimental.SuperBuilder;
+import ru.yandex.practicum.model.sensor.enums.SensorEventType;
 
+@SuperBuilder(toBuilder = true)
 @Getter
 @Setter
 @ToString(callSuper = true)

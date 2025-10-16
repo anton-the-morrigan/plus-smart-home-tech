@@ -1,0 +1,114 @@
+package ru.yandex.practicum.handler;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import ru.yandex.practicum.grpc.telemetry.event.DeviceActionProto;
+import ru.yandex.practicum.grpc.telemetry.event.DeviceActionRequest;
+import ru.yandex.practicum.kafka.telemetry.event.*;
+import ru.yandex.practicum.mapper.Mapper;
+import ru.yandex.practicum.model.Action;
+import ru.yandex.practicum.model.Condition;
+import ru.yandex.practicum.model.Scenario;
+import ru.yandex.practicum.model.enums.ConditionOperation;
+import ru.yandex.practicum.repository.ScenarioRepository;
+
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Service
+@RequiredArgsConstructor
+public class SnapshotHandlerImpl implements SnapshotHandler {
+    private final Map<String, SensorsSnapshotAvro> snapshots = new HashMap<>();
+    private final ScenarioRepository scenarioRepository;
+    private final Mapper mapper;
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<DeviceActionRequest> handle(SensorsSnapshotAvro snapshot) {
+        String hubId = snapshot.getHubId();
+        if (snapshots.containsKey(hubId)) {
+            SensorsSnapshotAvro sensorsSnapshotAvro = snapshots.get(hubId);
+            Instant oldSnapshotTimestamp = sensorsSnapshotAvro.getTimestamp();
+            Instant newSnapshotTimestamp = snapshot.getTimestamp();
+            if (oldSnapshotTimestamp.isAfter(newSnapshotTimestamp)) {
+                return List.of();
+            }
+        }
+        snapshots.put(hubId, snapshot);
+        List<DeviceActionRequest> actionRequests = new ArrayList<>();
+        for (Scenario scenario : scenarioRepository.findByHubId(snapshot.getHubId())) {
+            Map<String, Condition> conditions = scenario.getConditions();
+            if (!snapshot.getSensorsState().keySet().containsAll(conditions.keySet())) {
+                continue;
+            }
+            if (checkConditions(conditions, snapshot)) {
+                Map<String, Action> actions = scenario.getActions();
+                for (Map.Entry<String, Action> entry : actions.entrySet()) {
+                    Action action = entry.getValue();
+                    actionRequests.add(DeviceActionRequest.newBuilder()
+                            .setScenarioName(scenario.getName())
+                            .setHubId(scenario.getHubId())
+                            .setAction(DeviceActionProto.newBuilder()
+                                    .setSensorId(entry.getKey())
+                                    .setType(mapper.toActionTypeProto(action.getType()))
+                                    .setValue(action.getValue())
+                                    .build())
+                            .build());
+                }
+            }
+        }
+        return actionRequests;
+    }
+
+    private boolean checkConditions(Map<String, Condition> conditions, SensorsSnapshotAvro snapshotAvro) {
+        for (Map.Entry<String, Condition> entry : conditions.entrySet()) {
+            Object data = snapshotAvro.getSensorsState().get(entry.getKey()).getData();
+            Condition condition = entry.getValue();
+            Integer value = condition.getValue();
+            ConditionOperation operationType = condition.getOperation();
+            if (!switch (condition.getType()) {
+                case TEMPERATURE -> {
+                    if (data instanceof TemperatureSensorAvro temperatureState) {
+                        yield checkByConditionOperation(temperatureState.getTemperatureC(), value, operationType);
+                    } else {
+                        ClimateSensorAvro climateState = (ClimateSensorAvro) data;
+                        yield checkByConditionOperation(climateState.getTemperatureC(), value, operationType);
+                    }
+                }
+                case LUMINOSITY -> {
+                    LightSensorAvro lightSensorState = (LightSensorAvro) data;
+                    yield checkByConditionOperation(lightSensorState.getLuminosity(), value, operationType);
+                }
+                case HUMIDITY -> {
+                    ClimateSensorAvro climateSensorState = (ClimateSensorAvro) data;
+                    yield checkByConditionOperation(climateSensorState.getHumidity(), value, operationType);
+                }
+                case CO2LEVEL -> {
+                    ClimateSensorAvro climateSensorState = (ClimateSensorAvro) data;
+                    yield checkByConditionOperation(climateSensorState.getCo2Level(), value, operationType);
+                }
+                case SWITCH -> {
+                    SwitchSensorAvro switchSensorState = (SwitchSensorAvro) data;
+                    yield (switchSensorState.getState() ? 1 : 0) == value;
+                }
+                case MOTION -> {
+                    MotionSensorAvro motionSensorState = (MotionSensorAvro) data;
+                    yield (motionSensorState.getMotion() ? 1 : 0) == value;
+                }
+            }) return false;
+        }
+        return true;
+    }
+
+    private boolean checkByConditionOperation(int currentValue, int conditionValue, ConditionOperation type) {
+        return switch (type) {
+            case EQUALS -> currentValue == conditionValue;
+            case GREATER_THAN -> currentValue > conditionValue;
+            case LOWER_THAN -> currentValue < conditionValue;
+        };
+    }
+}
