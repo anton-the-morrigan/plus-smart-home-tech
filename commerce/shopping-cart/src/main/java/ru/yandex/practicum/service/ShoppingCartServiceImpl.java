@@ -25,26 +25,19 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     public ShoppingCartDto getShoppingCart(String username) {
-        ShoppingCart shoppingCart = shoppingCartRepository.findByUsernameAndState(username, ShoppingCartState.ACTIVE);
+        ShoppingCart shoppingCart = getCartOrCreateANewOne(username);
         return shoppingCartMapper.toShoppingCartDto(shoppingCart);
     }
 
     @Override
     @Transactional
     public ShoppingCartDto addToCart(String username, Map<UUID, Long> products) {
-        ShoppingCart shoppingCart = shoppingCartRepository.findByUsernameAndState(username, ShoppingCartState.ACTIVE);
-        if (shoppingCart == null) {
-            createNewShoppingCart(username);
-        }
+        ShoppingCart shoppingCart = getCartOrCreateANewOne(username);
         Map<UUID, Long> oldProducts = shoppingCart.getProducts();
         oldProducts.putAll(products);
         shoppingCart.setProducts(oldProducts);
         ShoppingCartDto shoppingCartDto = shoppingCartMapper.toShoppingCartDto(shoppingCart);
-        try {
-            warehouseClient.checkShoppingCart(shoppingCartDto);
-        } catch (Exception e) {
-
-        }
+        warehouseClient.checkShoppingCart(shoppingCartDto);
         shoppingCartRepository.save(shoppingCart);
         return shoppingCartDto;
     }
@@ -52,7 +45,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     @Transactional
     public void deleteCart(String username) {
-        ShoppingCart shoppingCart = shoppingCartRepository.findByUsernameAndState(username, ShoppingCartState.ACTIVE);
+        ShoppingCart shoppingCart = getCartOrCreateANewOne(username);
         shoppingCart.setState(ShoppingCartState.DEACTIVATE);
         shoppingCartRepository.save(shoppingCart);
     }
@@ -60,7 +53,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     @Transactional
     public ShoppingCartDto removeFromCart(String username, List<UUID> products) {
-        ShoppingCart shoppingCart = shoppingCartRepository.findByUsernameAndState(username, ShoppingCartState.ACTIVE);
+        ShoppingCart shoppingCart = getCartOrCreateANewOne(username);
         Map<UUID, Long> oldProducts = shoppingCart.getProducts();
         products.forEach(oldProducts::remove);
         shoppingCart.setProducts(oldProducts);
@@ -71,26 +64,24 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Override
     @Transactional
     public ShoppingCartDto changeProductQuantity(String username, ChangeProductQuantityRequest request) {
-        ShoppingCart shoppingCart = shoppingCartRepository.findByUsernameAndState(username, ShoppingCartState.ACTIVE);
+        ShoppingCart shoppingCart = getCartOrCreateANewOne(username);
         Map<UUID, Long> oldProducts = shoppingCart.getProducts();
         oldProducts.put(request.getProductId(), request.getNewQuantity());
         shoppingCart.setProducts(oldProducts);
         ShoppingCartDto shoppingCartDto = shoppingCartMapper.toShoppingCartDto(shoppingCart);
-        try {
-            warehouseClient.checkShoppingCart(shoppingCartDto);
-        } catch (Exception e) {
-
-        }
+        warehouseClient.checkShoppingCart(shoppingCartDto);
         shoppingCartRepository.save(shoppingCart);
         return shoppingCartDto;
     }
 
-    private ShoppingCart createNewShoppingCart(String username) {
-        ShoppingCart cart = ShoppingCart.builder()
-                .username(username)
-                .products(new HashMap<>())
-                .state(ShoppingCartState.ACTIVE)
-                .build();
-        return shoppingCartRepository.save(cart);
+    private ShoppingCart getCartOrCreateANewOne(String username) {
+        return shoppingCartRepository.findByUsernameAndState(username, ShoppingCartState.ACTIVE)
+                .orElseGet(() -> {
+                    ShoppingCart newShoppingCart = new ShoppingCart();
+                    newShoppingCart.setUsername(username);
+                    newShoppingCart.setProducts(new HashMap<>());
+                    newShoppingCart.setState(ShoppingCartState.ACTIVE);
+                    return shoppingCartRepository.save(newShoppingCart);
+                });
     }
 }
