@@ -35,6 +35,3 @@ spring:
     url: "jdbc:postgresql://localhost:5432/telemetry_analyzer"
     username: "analyzer"
     password: "analyzer"
-
-server:
-  port: 0
