@@ -97,28 +97,10 @@ public class WarehouseServiceImpl implements WarehouseService {
         quantity += request.getQuantity();
         product.setQuantity(quantity);
         warehouseRepository.save(product);
-        //updateQuantityInShoppingStore(product);
     }
 
     @Override
     public AddressDto getWarehouseAddress() {
         return ADDRESSES[Random.from(new SecureRandom()).nextInt(0, ADDRESSES.length)];
-    }
-
-    private void updateQuantityInShoppingStore(WarehouseProduct product) {
-        Long quantity = product.getQuantity();
-        QuantityState quantityState;
-
-        if (quantity == 0) {
-            quantityState = QuantityState.ENDED;
-        } else if (0 < quantity && quantity <= 10) {
-            quantityState = QuantityState.FEW;
-        } else if (10 < quantity && quantity <= 100) {
-            quantityState = QuantityState.ENOUGH;
-        } else {
-            quantityState = QuantityState.MANY;
-        }
-
-        shoppingStoreClient.setProductQuantityState(product.getProductId(), quantityState);
     }
 }
