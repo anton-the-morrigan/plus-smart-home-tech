@@ -97,7 +97,7 @@ public class WarehouseServiceImpl implements WarehouseService {
         quantity += request.getQuantity();
         product.setQuantity(quantity);
         warehouseRepository.save(product);
-        updateQuantityInShoppingStore(product);
+        //updateQuantityInShoppingStore(product);
     }
 
     @Override
