@@ -12,5 +12,5 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ChangeProductQuantityRequest {
     UUID productId;
-    Long newQuantity;
+    Integer newQuantity;
 }
