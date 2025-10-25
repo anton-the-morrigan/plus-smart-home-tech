@@ -18,7 +18,7 @@ public interface ShoppingCartClient {
 
     @PutMapping
     ShoppingCartDto addToCart(@RequestParam String username,
-                              @RequestBody Map<UUID, Integer> products) throws FeignException;
+                              @RequestBody Map<UUID, Long> products) throws FeignException;
 
     @DeleteMapping
     void deleteCart(@RequestParam String username) throws FeignException;

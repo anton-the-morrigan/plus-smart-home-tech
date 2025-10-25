@@ -24,7 +24,7 @@ public class ShoppingCartController implements ShoppingCartClient {
     }
 
     @Override
-    public ShoppingCartDto addToCart(String username, Map<UUID, Integer> products) {
+    public ShoppingCartDto addToCart(String username, Map<UUID, Long> products) {
         return shoppingCartService.addToCart(username, products);
     }
 

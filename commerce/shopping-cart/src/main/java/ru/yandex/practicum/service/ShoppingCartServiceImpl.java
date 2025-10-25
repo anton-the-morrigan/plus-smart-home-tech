@@ -30,9 +30,9 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
 
     @Override
     @Transactional
-    public ShoppingCartDto addToCart(String username, Map<UUID, Integer> products) {
+    public ShoppingCartDto addToCart(String username, Map<UUID, Long> products) {
         ShoppingCart shoppingCart = shoppingCartRepository.findByUsernameAndState(username, ShoppingCartState.ACTIVE);
-        Map<UUID, Integer> oldProducts = shoppingCart.getProducts();
+        Map<UUID, Long> oldProducts = shoppingCart.getProducts();
         oldProducts.putAll(products);
         shoppingCart.setProducts(oldProducts);
         ShoppingCartDto shoppingCartDto = shoppingCartMapper.toShoppingCartDto(shoppingCart);
@@ -57,7 +57,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Transactional
     public ShoppingCartDto removeFromCart(String username, List<UUID> products) {
         ShoppingCart shoppingCart = shoppingCartRepository.findByUsernameAndState(username, ShoppingCartState.ACTIVE);
-        Map<UUID, Integer> oldProducts = shoppingCart.getProducts();
+        Map<UUID, Long> oldProducts = shoppingCart.getProducts();
         products.forEach(oldProducts::remove);
         shoppingCart.setProducts(oldProducts);
         shoppingCartRepository.save(shoppingCart);
@@ -68,7 +68,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Transactional
     public ShoppingCartDto changeProductQuantity(String username, ChangeProductQuantityRequest request) {
         ShoppingCart shoppingCart = shoppingCartRepository.findByUsernameAndState(username, ShoppingCartState.ACTIVE);
-        Map<UUID, Integer> oldProducts = shoppingCart.getProducts();
+        Map<UUID, Long> oldProducts = shoppingCart.getProducts();
         oldProducts.put(request.getProductId(), request.getNewQuantity());
         shoppingCart.setProducts(oldProducts);
         ShoppingCartDto shoppingCartDto = shoppingCartMapper.toShoppingCartDto(shoppingCart);
