@@ -4,4 +4,8 @@ kafka:
 
 grpc:
   server:
-    port: 0
+    port: 59091
+    reflection-service-enabled: true
+
+server:
+  port: 8080
