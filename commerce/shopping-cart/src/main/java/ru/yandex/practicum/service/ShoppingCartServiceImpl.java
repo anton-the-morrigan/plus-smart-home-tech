@@ -32,17 +32,22 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Transactional
     public ShoppingCartDto addToCart(String username, Map<UUID, Long> products) {
         ShoppingCart shoppingCart = shoppingCartRepository.findByUsernameAndState(username, ShoppingCartState.ACTIVE);
-        Map<UUID, Long> oldProducts = shoppingCart.getProducts();
-        oldProducts.putAll(products);
-        shoppingCart.setProducts(oldProducts);
-        ShoppingCartDto shoppingCartDto = shoppingCartMapper.toShoppingCartDto(shoppingCart);
-        try {
-            warehouseClient.checkShoppingCart(shoppingCartDto);
-        } catch (Exception e) {
+//        Map<UUID, Long> oldProducts = shoppingCart.getProducts();
+//        oldProducts.putAll(products);
+//        shoppingCart.setProducts(oldProducts);
+//        ShoppingCartDto shoppingCartDto = shoppingCartMapper.toShoppingCartDto(shoppingCart);
+//        try {
+//            warehouseClient.checkShoppingCart(shoppingCartDto);
+//        } catch (Exception e) {
+//
+//        }
+//        shoppingCartRepository.save(shoppingCart);
+//        return shoppingCartDto;
+//    }
 
-        }
+        products.forEach((key, value) -> shoppingCart.getProducts().merge(key, value, Long::sum));
         shoppingCartRepository.save(shoppingCart);
-        return shoppingCartDto;
+        return shoppingCartMapper.toShoppingCartDto(shoppingCart);
     }
 
     @Override
