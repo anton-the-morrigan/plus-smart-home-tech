@@ -41,6 +41,7 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         } catch (Exception e) {
 
         }
+        shoppingCartRepository.save(shoppingCart);
         return shoppingCartDto;
     }
 
