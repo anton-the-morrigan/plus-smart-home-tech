@@ -13,5 +13,5 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class ShoppingCartDto {
     UUID shoppingCartId;
-    Map<UUID, Long> products;
+    Map<UUID, Integer> products;
 }
