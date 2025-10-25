@@ -9,7 +9,7 @@ import ru.yandex.practicum.service.ShoppingStoreService;
 import ru.yandex.practicum.store.client.ShoppingStoreClient;
 import ru.yandex.practicum.store.dto.ProductCategory;
 import ru.yandex.practicum.store.dto.ProductDto;
-import ru.yandex.practicum.store.dto.SetProductQuantityStateRequest;
+import ru.yandex.practicum.store.dto.QuantityState;
 
 import java.util.UUID;
 
@@ -40,8 +40,8 @@ public class ShoppingStoreController implements ShoppingStoreClient {
     }
 
     @Override
-    public void setProductQuantityState(SetProductQuantityStateRequest request) {
-        shoppingStoreService.setProductQuantityState(request);
+    public void setProductQuantityState(UUID productId, QuantityState quantityState) {
+        shoppingStoreService.setProductQuantityState(productId, quantityState);
     }
 
     @Override

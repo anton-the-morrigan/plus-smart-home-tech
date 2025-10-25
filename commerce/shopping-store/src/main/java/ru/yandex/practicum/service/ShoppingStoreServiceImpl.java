@@ -52,9 +52,9 @@ public class ShoppingStoreServiceImpl implements ShoppingStoreService {
 
     @Override
     @Transactional
-    public void setProductQuantityState(SetProductQuantityStateRequest request) {
-        Product product = shoppingStoreRepository.findById(request.getProductId()).orElseThrow(() -> new ProductNotFoundException("Товар не найден"));
-        product.setQuantityState(request.getQuantityState());
+    public void setProductQuantityState(UUID productId, QuantityState quantityState) {
+        Product product = shoppingStoreRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException("Товар не найден"));
+        product.setQuantityState(quantityState);
         shoppingStoreRepository.save(product);
     }
 

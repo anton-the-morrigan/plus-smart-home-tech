@@ -7,7 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.store.dto.ProductCategory;
 import ru.yandex.practicum.store.dto.ProductDto;
-import ru.yandex.practicum.store.dto.SetProductQuantityStateRequest;
+import ru.yandex.practicum.store.dto.QuantityState;
 
 import java.util.UUID;
 
@@ -27,7 +27,8 @@ public interface ShoppingStoreClient {
     void removeProductFromStore(@RequestBody UUID productId) throws FeignException;
 
     @PostMapping("/quantityState")
-    void setProductQuantityState(@RequestBody SetProductQuantityStateRequest request) throws FeignException;
+    void setProductQuantityState(@RequestParam UUID productId,
+                                 @RequestParam QuantityState quantityState) throws FeignException;
 
     @GetMapping("/{productId}")
     ProductDto getProduct(@PathVariable UUID productId) throws FeignException;
