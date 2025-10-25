@@ -11,6 +11,7 @@ import ru.yandex.practicum.model.ShoppingCartState;
 import ru.yandex.practicum.repository.ShoppingCartRepository;
 import ru.yandex.practicum.warehouse.client.WarehouseClient;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -32,22 +33,20 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
     @Transactional
     public ShoppingCartDto addToCart(String username, Map<UUID, Long> products) {
         ShoppingCart shoppingCart = shoppingCartRepository.findByUsernameAndState(username, ShoppingCartState.ACTIVE);
-//        Map<UUID, Long> oldProducts = shoppingCart.getProducts();
-//        oldProducts.putAll(products);
-//        shoppingCart.setProducts(oldProducts);
-//        ShoppingCartDto shoppingCartDto = shoppingCartMapper.toShoppingCartDto(shoppingCart);
-//        try {
-//            warehouseClient.checkShoppingCart(shoppingCartDto);
-//        } catch (Exception e) {
-//
-//        }
-//        shoppingCartRepository.save(shoppingCart);
-//        return shoppingCartDto;
-//    }
+        if (shoppingCart == null) {
+            createNewShoppingCart(username);
+        }
+        Map<UUID, Long> oldProducts = shoppingCart.getProducts();
+        oldProducts.putAll(products);
+        shoppingCart.setProducts(oldProducts);
+        ShoppingCartDto shoppingCartDto = shoppingCartMapper.toShoppingCartDto(shoppingCart);
+        try {
+            warehouseClient.checkShoppingCart(shoppingCartDto);
+        } catch (Exception e) {
 
-        products.forEach((key, value) -> shoppingCart.getProducts().merge(key, value, Long::sum));
+        }
         shoppingCartRepository.save(shoppingCart);
-        return shoppingCartMapper.toShoppingCartDto(shoppingCart);
+        return shoppingCartDto;
     }
 
     @Override
@@ -84,5 +83,14 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
         }
         shoppingCartRepository.save(shoppingCart);
         return shoppingCartDto;
+    }
+
+    private ShoppingCart createNewShoppingCart(String username) {
+        ShoppingCart cart = ShoppingCart.builder()
+                .username(username)
+                .products(new HashMap<>())
+                .state(ShoppingCartState.ACTIVE)
+                .build();
+        return shoppingCartRepository.save(cart);
     }
 }
