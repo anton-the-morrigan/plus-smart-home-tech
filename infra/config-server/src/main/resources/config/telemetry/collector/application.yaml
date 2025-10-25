@@ -7,4 +7,4 @@ grpc:
     port: 59091
 
 server:
-  port: 0
+  port: 8080
