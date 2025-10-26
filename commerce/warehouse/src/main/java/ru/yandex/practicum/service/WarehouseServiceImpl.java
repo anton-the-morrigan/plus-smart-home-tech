@@ -7,7 +7,6 @@ import ru.yandex.practicum.cart.dto.ShoppingCartDto;
 import ru.yandex.practicum.mapper.WarehouseProductMapper;
 import ru.yandex.practicum.model.WarehouseProduct;
 import ru.yandex.practicum.repository.WarehouseRepository;
-import ru.yandex.practicum.store.client.ShoppingStoreClient;
 import ru.yandex.practicum.warehouse.dto.AddProductToWarehouseRequest;
 import ru.yandex.practicum.warehouse.dto.AddressDto;
 import ru.yandex.practicum.warehouse.dto.BookedProductsDto;
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
 public class WarehouseServiceImpl implements WarehouseService {
     private final WarehouseRepository warehouseRepository;
     private final WarehouseProductMapper warehouseProductMapper;
-    private final ShoppingStoreClient shoppingStoreClient;
 
     private static final AddressDto[] ADDRESSES =
             new AddressDto[]{

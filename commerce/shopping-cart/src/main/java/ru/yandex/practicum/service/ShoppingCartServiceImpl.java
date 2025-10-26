@@ -9,7 +9,6 @@ import ru.yandex.practicum.mapper.ShoppingCartMapper;
 import ru.yandex.practicum.model.ShoppingCart;
 import ru.yandex.practicum.model.ShoppingCartState;
 import ru.yandex.practicum.repository.ShoppingCartRepository;
-import ru.yandex.practicum.warehouse.client.WarehouseClient;
 
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +20,6 @@ import java.util.UUID;
 public class ShoppingCartServiceImpl implements ShoppingCartService {
     private final ShoppingCartRepository shoppingCartRepository;
     private final ShoppingCartMapper shoppingCartMapper;
-    private final WarehouseClient warehouseClient;
 
     @Override
     public ShoppingCartDto getShoppingCart(String username) {
