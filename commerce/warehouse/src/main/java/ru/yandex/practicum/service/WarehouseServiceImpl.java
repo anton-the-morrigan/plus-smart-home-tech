@@ -8,8 +8,6 @@ import ru.yandex.practicum.mapper.WarehouseProductMapper;
 import ru.yandex.practicum.model.WarehouseProduct;
 import ru.yandex.practicum.repository.WarehouseRepository;
 import ru.yandex.practicum.store.client.ShoppingStoreClient;
-import ru.yandex.practicum.store.dto.QuantityState;
-import ru.yandex.practicum.store.dto.SetProductQuantityStateRequest;
 import ru.yandex.practicum.warehouse.dto.AddProductToWarehouseRequest;
 import ru.yandex.practicum.warehouse.dto.AddressDto;
 import ru.yandex.practicum.warehouse.dto.BookedProductsDto;
@@ -51,7 +49,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Transactional
     public void addProductToWarehouse(NewProductInWarehouseRequest request) {
         warehouseRepository.findById(request.getProductId()).ifPresent(product -> {
-                    throw new SpecifiedProductAlreadyInWarehouseException("Товар уже есть на складе");
+                    throw new SpecifiedProductAlreadyInWarehouseException(String.format("Товар с id %s уже есть на складе", request.getProductId()));
                 });
         WarehouseProduct product = warehouseProductMapper.toWarehouseProduct(request);
         warehouseRepository.save(product);
@@ -91,7 +89,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Transactional
     public void increaseProductQuantity(AddProductToWarehouseRequest request) {
         WarehouseProduct product = warehouseRepository.findById(request.getProductId()).orElseThrow(() ->
-                new NoSpecifiedProductInWarehouseException("Товар не найден на складе")
+                new NoSpecifiedProductInWarehouseException(String.format("Товар с id %s не найден на складе", request.getProductId()))
         );
         Long quantity = product.getQuantity();
         quantity += request.getQuantity();

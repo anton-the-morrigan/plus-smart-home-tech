@@ -36,7 +36,7 @@ public class ShoppingStoreServiceImpl implements ShoppingStoreService {
     @Override
     @Transactional
     public ProductDto updateProduct(ProductDto productDto) {
-        shoppingStoreRepository.findById(productDto.getProductId()).orElseThrow(() -> new ProductNotFoundException("Товар не найден"));
+        shoppingStoreRepository.findById(productDto.getProductId()).orElseThrow(() -> new ProductNotFoundException(String.format("Товар с id %s не найден", productDto.getProductId())));
         Product newProduct = productMapper.toProduct(productDto);
         newProduct = shoppingStoreRepository.save(newProduct);
         return productMapper.toProductDto(newProduct);
@@ -45,7 +45,7 @@ public class ShoppingStoreServiceImpl implements ShoppingStoreService {
     @Override
     @Transactional
     public void removeProductFromStore(UUID productId) {
-        Product product = shoppingStoreRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException("Товар не найден"));
+        Product product = shoppingStoreRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException(String.format("Товар с id %s не найден", productId)));
         product.setProductState(ProductState.DEACTIVATE);
         shoppingStoreRepository.save(product);
     }
@@ -53,14 +53,14 @@ public class ShoppingStoreServiceImpl implements ShoppingStoreService {
     @Override
     @Transactional
     public void setProductQuantityState(UUID productId, QuantityState quantityState) {
-        Product product = shoppingStoreRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException("Товар не найден"));
+        Product product = shoppingStoreRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException(String.format("Товар с id %s не найден", productId)));
         product.setQuantityState(quantityState);
         shoppingStoreRepository.save(product);
     }
 
     @Override
     public ProductDto getProduct(UUID productId) {
-        Product product = shoppingStoreRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException("Товар не найден"));
+        Product product = shoppingStoreRepository.findById(productId).orElseThrow(() -> new ProductNotFoundException(String.format("Товар с id %s не найден", productId)));
         return productMapper.toProductDto(product);
     }
 }
