@@ -1,0 +1,11 @@
+kafka:
+  bootstrap:
+    servers: localhost:9092
+
+grpc:
+  server:
+    port: 59091
+    reflection-service-enabled: true
+
+server:
+  port: 8080
