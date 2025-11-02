@@ -7,7 +7,6 @@ import ru.yandex.practicum.cart.dto.ShoppingCartDto;
 import ru.yandex.practicum.mapper.WarehouseProductMapper;
 import ru.yandex.practicum.model.OrderBooking;
 import ru.yandex.practicum.model.WarehouseProduct;
-import ru.yandex.practicum.order.client.OrderClient;
 import ru.yandex.practicum.repository.OrderBookingRepository;
 import ru.yandex.practicum.repository.WarehouseRepository;
 import ru.yandex.practicum.warehouse.dto.*;
@@ -29,7 +28,6 @@ public class WarehouseServiceImpl implements WarehouseService {
     private final WarehouseRepository warehouseRepository;
     private final OrderBookingRepository orderBookingRepository;
     private final WarehouseProductMapper warehouseProductMapper;
-    private final OrderClient orderClient;
 
     private static final AddressDto[] ADDRESSES =
             new AddressDto[]{
@@ -120,6 +118,8 @@ public class WarehouseServiceImpl implements WarehouseService {
 
     @Override
     public BookedProductsDto assembleProducts(AssemblyProductsForOrderRequest request) {
-        return null;
+        ShoppingCartDto shoppingCartDto = new ShoppingCartDto();
+        shoppingCartDto.setProducts(request.getProducts());
+        return checkShoppingCart(shoppingCartDto);
     }
 }
