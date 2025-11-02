@@ -39,8 +39,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     @Transactional
     public void successful(UUID deliveryId) {
-        Delivery delivery = deliveryRepository.findById(deliveryId).orElseThrow(() ->
-                new NoDeliveryFoundException(String.format("Доставка с id %s не найдена", deliveryId)));
+        Delivery delivery = findDelivery(deliveryId);
         delivery.setDeliveryState(DeliveryState.DELIVERED);
         deliveryRepository.save(delivery);
     }
@@ -48,8 +47,7 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     @Transactional
     public void picked(UUID deliveryId) {
-        Delivery delivery = deliveryRepository.findById(deliveryId).orElseThrow(() ->
-                new NoDeliveryFoundException(String.format("Доставка с id %s не найдена", deliveryId)));
+        Delivery delivery = findDelivery(deliveryId);
         delivery.setDeliveryState(DeliveryState.IN_PROGRESS);
         deliveryRepository.save(delivery);
     }
@@ -57,16 +55,14 @@ public class DeliveryServiceImpl implements DeliveryService {
     @Override
     @Transactional
     public void failed(UUID deliveryId) {
-        Delivery delivery = deliveryRepository.findById(deliveryId).orElseThrow(() ->
-                new NoDeliveryFoundException(String.format("Доставка с id %s не найдена", deliveryId)));
+        Delivery delivery = findDelivery(deliveryId);
         delivery.setDeliveryState(DeliveryState.FAILED);
         deliveryRepository.save(delivery);
     }
 
     @Override
     public Double calculateCost(OrderDto orderDto) {
-        Delivery delivery = deliveryRepository.findById(orderDto.getDeliveryId()).orElseThrow(() ->
-                new NoDeliveryFoundException(String.format("Доставка с id %s не найдена", orderDto.getDeliveryId())));
+        Delivery delivery = findDelivery(orderDto.getDeliveryId());
 
         AddressDto warehouseAddress = delivery.getFromAddress();
         AddressDto destinationAddress = delivery.getToAddress();
@@ -92,5 +88,10 @@ public class DeliveryServiceImpl implements DeliveryService {
         }
 
         return cost;
+    }
+
+    private Delivery findDelivery(UUID deliveryId) {
+        return deliveryRepository.findById(deliveryId).orElseThrow(() ->
+                new NoDeliveryFoundException(String.format("Доставка с id %s не найдена", deliveryId)));
     }
 }

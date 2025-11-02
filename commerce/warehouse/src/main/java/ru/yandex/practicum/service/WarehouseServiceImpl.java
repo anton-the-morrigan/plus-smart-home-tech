@@ -12,7 +12,6 @@ import ru.yandex.practicum.repository.WarehouseRepository;
 import ru.yandex.practicum.warehouse.dto.*;
 import ru.yandex.practicum.warehouse.exception.NoSpecifiedProductInWarehouseException;
 import ru.yandex.practicum.warehouse.exception.ProductInShoppingCartLowQuantityInWarehouse;
-import ru.yandex.practicum.warehouse.exception.SpecifiedProductAlreadyInWarehouseException;
 
 import java.security.SecureRandom;
 import java.util.Map;
@@ -47,9 +46,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     @Transactional
     public void addProductToWarehouse(NewProductInWarehouseRequest request) {
-        warehouseRepository.findById(request.getProductId()).ifPresent(product -> {
-                    throw new SpecifiedProductAlreadyInWarehouseException(String.format("Товар с id %s уже есть на складе", request.getProductId()));
-                });
+        findWarehouseProduct(request.getProductId());
         WarehouseProduct product = warehouseProductMapper.toWarehouseProduct(request);
         warehouseRepository.save(product);
     }
@@ -87,9 +84,7 @@ public class WarehouseServiceImpl implements WarehouseService {
     @Override
     @Transactional
     public void increaseProductQuantity(AddProductToWarehouseRequest request) {
-        WarehouseProduct product = warehouseRepository.findById(request.getProductId()).orElseThrow(() ->
-                new NoSpecifiedProductInWarehouseException(String.format("Товар с id %s не найден на складе", request.getProductId()))
-        );
+        WarehouseProduct product = findWarehouseProduct(request.getProductId());
         Long quantity = product.getQuantity();
         quantity += request.getQuantity();
         product.setQuantity(quantity);
@@ -121,5 +116,10 @@ public class WarehouseServiceImpl implements WarehouseService {
         ShoppingCartDto shoppingCartDto = new ShoppingCartDto();
         shoppingCartDto.setProducts(request.getProducts());
         return checkShoppingCart(shoppingCartDto);
+    }
+
+    private WarehouseProduct findWarehouseProduct(UUID productId) {
+        return warehouseRepository.findById(productId).orElseThrow(() ->
+                new NoSpecifiedProductInWarehouseException(String.format("Товар с id %s не найден на складе", productId)));
     }
 }

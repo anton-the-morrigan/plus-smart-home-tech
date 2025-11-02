@@ -41,8 +41,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public void refundPayment(UUID paymentId) {
-        Payment payment = paymentRepository.findById(paymentId).orElseThrow(() ->
-                new NoPaymentFoundException(String.format("Платёж с id %s не найден", paymentId)));
+        Payment payment = findPayment(paymentId);
         payment.setPaymentState(PaymentState.SUCCESS);
         paymentRepository.save(payment);
 
@@ -66,8 +65,7 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public void paymentFailed(UUID paymentId) {
-        Payment payment = paymentRepository.findById(paymentId).orElseThrow(() ->
-                new NoPaymentFoundException(String.format("Платёж с id %s не найден", paymentId)));
+        Payment payment = findPayment(paymentId);
         payment.setPaymentState(PaymentState.FAILED);
         paymentRepository.save(payment);
     }
@@ -83,5 +81,10 @@ public class PaymentServiceImpl implements PaymentService {
                 throw new NotEnoughInfoInOrderToCalculateException(String.format("В заказе с id %s нет необходимой информации", orderDto.getOrderId()));
             }
         }
+    }
+
+    private Payment findPayment(UUID paymentId) {
+        return paymentRepository.findById(paymentId).orElseThrow(() ->
+                new NoPaymentFoundException(String.format("Платёж с id %s не найден", paymentId)));
     }
 }
